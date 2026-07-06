@@ -17,6 +17,7 @@
 - GitHub Actions simulator：[.github/workflows/cloud-agent-simulator.yml](.github/workflows/cloud-agent-simulator.yml)
 - Cloud Agent Simulator 產出器：[scripts/cloud_agent_simulator.py](scripts/cloud_agent_simulator.py)
 - 第二階段 runbook：[docs/phase-2-copilot-cloud-agent.md](docs/phase-2-copilot-cloud-agent.md)
+- 第二階段人工審查證據：[docs/phase-2-review-evidence.md](docs/phase-2-review-evidence.md)
 - 實務操作流程：[docs/operation-flow.md](docs/operation-flow.md)
 - Demo 頁面：[index.html](index.html)
 
