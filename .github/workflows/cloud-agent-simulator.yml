@@ -1,0 +1,102 @@
+name: Cloud Agent Simulator
+
+on:
+  issues:
+    types:
+      - opened
+      - labeled
+      - edited
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Existing issue number to simulate.
+        required: true
+      title:
+        description: Optional task title override.
+        required: false
+      body:
+        description: Optional task body override.
+        required: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  simulate-cloud-agent:
+    name: Simulate cloud-agent handoff
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(toJson(github.event.issue.labels), 'cloud-agent:ready')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve issue context
+        id: issue
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_ISSUE_TITLE: ${{ github.event.issue.title }}
+          EVENT_ISSUE_BODY: ${{ github.event.issue.body }}
+          INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+          INPUT_TITLE: ${{ inputs.title }}
+          INPUT_BODY: ${{ inputs.body }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "number=$INPUT_ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "title=${INPUT_TITLE:-Manual cloud-agent simulation}" >> "$GITHUB_OUTPUT"
+            {
+              echo "body<<EOF"
+              echo "${INPUT_BODY:-Triggered manually from GitHub Actions.}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "number=$EVENT_ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "title=$EVENT_ISSUE_TITLE" >> "$GITHUB_OUTPUT"
+            {
+              echo "body<<EOF"
+              echo "$EVENT_ISSUE_BODY"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create cloud-agent branch
+        run: |
+          git config user.name "cloud-agent-simulator[bot]"
+          git config user.email "cloud-agent-simulator[bot]@users.noreply.github.com"
+          git checkout -b "cloud-agent/issue-${{ steps.issue.outputs.number }}-${{ github.run_id }}"
+
+      - name: Generate reviewable output
+        run: |
+          python scripts/cloud_agent_simulator.py \
+            --issue-number "${{ steps.issue.outputs.number }}" \
+            --issue-title "${{ steps.issue.outputs.title }}" \
+            --issue-body "${{ steps.issue.outputs.body }}" \
+            --repository "${{ github.repository }}" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Commit generated output
+        run: |
+          git add DEMO_RESULTS.md cloud-agent-output/
+          git commit -m "cloud agent output for issue #${{ steps.issue.outputs.number }}"
+
+      - name: Push branch
+        run: |
+          git push --set-upstream origin "cloud-agent/issue-${{ steps.issue.outputs.number }}-${{ github.run_id }}"
+
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: cloud-agent/issue-${{ steps.issue.outputs.number }}-${{ github.run_id }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          PR_URL="$(gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$BRANCH_NAME" \
+            --title "[cloud-agent] Complete issue #${{ steps.issue.outputs.number }}" \
+            --body-file "cloud-agent-output/issue-${{ steps.issue.outputs.number }}/pr-body.md")"
+          gh issue comment "${{ steps.issue.outputs.number }}" --body "Cloud Agent Simulator accepted this task and opened a PR for human review: $PR_URL"

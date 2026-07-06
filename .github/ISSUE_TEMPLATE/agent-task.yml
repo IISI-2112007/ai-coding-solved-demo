@@ -1,0 +1,56 @@
+name: Local AI to Cloud Agent task
+description: Ask the cloud-agent simulator to complete a small, reviewable task.
+title: "[agent-task] "
+labels:
+  - local-ai
+  - cloud-agent:ready
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when the local AI wants to hand a task to the cloud agent.
+        Keep the task small enough that a human can review the resulting PR.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should the cloud agent produce?
+      placeholder: Create a short demo report that explains the requested change.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What background should the agent know?
+      placeholder: This repository demonstrates a local AI to cloud-agent handoff.
+    validations:
+      required: true
+  - type: textarea
+    id: allowed_scope
+    attributes:
+      label: Allowed scope
+      description: Which files or folders may the agent change?
+      placeholder: cloud-agent-output/** and DEMO_RESULTS.md
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How will a human reviewer know the task is done?
+      placeholder: |
+        - A PR is opened.
+        - The PR links back to this issue.
+        - The generated report is easy to review.
+    validations:
+      required: true
+  - type: checkboxes
+    id: handoff
+    attributes:
+      label: Handoff confirmation
+      options:
+        - label: This task is small enough for a demo PR.
+          required: true
+        - label: The cloud agent may open a PR for human review.
+          required: true
