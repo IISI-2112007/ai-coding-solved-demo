@@ -50,6 +50,7 @@ def ensure_label(name, color, description, repo=None):
         raise SystemExit(existing.stderr.strip() or "Unable to list labels")
     labels = {item["name"] for item in json.loads(existing.stdout or "[]")}
     if name in labels:
+        run([GH_EXE, "label", "edit", name, *repo_args(repo), "--color", color, "--description", description])
         return
     run(
         [

@@ -37,6 +37,7 @@ def ensure_label(name, color, description):
         raise SystemExit(existing.stderr.strip() or "Unable to list labels")
     labels = {item["name"] for item in json.loads(existing.stdout or "[]")}
     if name in labels:
+        run([GH_EXE, "label", "edit", name, "--color", color, "--description", description])
         return
     run([GH_EXE, "label", "create", name, "--color", color, "--description", description])
 
