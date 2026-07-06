@@ -160,6 +160,8 @@ PR 建立或更新後，GitHub Actions 會建立預覽：
 https://iisi-2112007.github.io/ai-coding-solved-demo/pr-{PR_NUMBER}/
 ```
 
+目前 repo 已改為 public，GitHub Pages 已啟用。PR #4 preview URL 已實測可開。Provider 決策與備援路線請見：[PR Preview Provider 決策紀錄](preview-provider-decision.md)。
+
 也可以手動為既有 PR 建立預覽：
 
 ```powershell

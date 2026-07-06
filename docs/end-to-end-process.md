@@ -90,7 +90,9 @@ PR -> GitHub Actions -> gh-pages/pr-{PR_NUMBER}/ -> Preview URL -> Human Review
 
 這一階段的重點是 reviewer 不需要拉 local，也不需要先懂 diff，就能從 PR comment 點 preview URL。
 
-目前限制：這個 private repo 的目前 GitHub 方案不支援 GitHub Pages，因此 workflow 可以產出 `gh-pages/pr-{PR_NUMBER}/` 檔案，但真正可點開的 Pages URL 需要 repo owner 先選擇 public repo、支援 private Pages 的方案，或改接外部 preview provider。
+目前狀態：owner 已將 repo 改為 public，GitHub Pages 已啟用。PR #4 preview URL 已實測 HTTP 200，可直接在瀏覽器打開。
+
+Provider 決策請見：[PR Preview Provider 決策紀錄](preview-provider-decision.md)。
 
 ### Phase 4：資安與品質 gate
 
@@ -162,3 +164,5 @@ Human reviewer -> final decision
   -> 人類用 preview + diff + checks 做最後審查
   -> merge 後才進入 main / production
 ```
+
+若未來 repo 改回 private，需要重新檢查 Pages 方案或改接外部 preview provider。

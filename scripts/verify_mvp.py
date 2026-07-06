@@ -21,6 +21,7 @@ required_files = [
     "scripts/cloud_agent_simulator.py",
     "README.md",
     "docs/end-to-end-process.md",
+    "docs/preview-provider-decision.md",
     "docs/phase-2-copilot-cloud-agent.md",
     "docs/phase-3-pr-preview.md",
     "docs/operation-flow.md",
@@ -40,6 +41,7 @@ create_script = (ROOT / "scripts/create_agent_issue.py").read_text(encoding="utf
 copilot_script = (ROOT / "scripts/create_copilot_issue.py").read_text(encoding="utf-8")
 phase3 = (ROOT / "docs/phase-3-pr-preview.md").read_text(encoding="utf-8")
 end_to_end = (ROOT / "docs/end-to-end-process.md").read_text(encoding="utf-8")
+preview_decision = (ROOT / "docs/preview-provider-decision.md").read_text(encoding="utf-8")
 
 require("Local AI" in readme, "README explains Local AI")
 require("Cloud Agent" in readme, "README explains Cloud Agent")
@@ -56,7 +58,9 @@ require('"issue"' in create_script and '"create"' in create_script, "local scrip
 require("@copilot" in copilot_script, "phase-2 script uses the GitHub CLI Copilot assignee")
 require("繁體中文" in copilot_script, "phase-2 script requests Traditional Chinese output")
 require("PR Preview" in phase3, "phase-3 document explains PR Preview")
-require("Your current plan does not support GitHub Pages" in phase3, "phase-3 document records current Pages limitation")
+require("StatusCode=200" in phase3, "phase-3 document records live preview verification")
+require("已決策" in preview_decision, "preview provider decision is explicit")
+require("Vercel" in preview_decision and "GitHub Pages" in preview_decision, "preview provider decision lists options")
 require("Issue + 指派 @copilot" in end_to_end, "end-to-end doc explains Copilot trigger")
 require("資安" in end_to_end, "end-to-end doc covers security gate")
 require("git push" in flow, "operation flow explains GitHub publishing")
