@@ -18,7 +18,7 @@
 
 ## 人工審查檢核清單
 
-- [ ] 確認 PR 已連回 Issue #3。
+- [ ] 確認 PR 已連回原始 Issue（本次為 #3）。
 - [ ] 確認 diff 僅涉及允許修改範圍（`docs/**`、`README.md`、`DEMO_RESULTS.md`）。
 - [ ] 確認 PR 說明與新增/更新文件皆為繁體中文。
 - [ ] 確認內容可支持 reviewer 做出 approve 或 request changes 決策。
