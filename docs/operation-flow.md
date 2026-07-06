@@ -5,7 +5,7 @@
 建立一個 GitHub 上可 demo 的最小流程：
 
 ```text
-本地端 AI 開 Issue -> Cloud Agent 接手 -> 開 PR -> 人類 review
+本地端 AI 開 Issue -> Cloud Agent 接手 -> 開 PR -> Preview -> 人類 review
 ```
 
 這份文件是 demo runbook。照著做，可以從本地端發動任務，然後在 GitHub 上看到 Issue、workflow run、branch、PR 與 review checkpoint。
@@ -17,6 +17,7 @@
 - Cloud Agent Simulator：第一階段使用 GitHub Actions 模擬雲端 agent。
 - GitHub Copilot cloud agent：第二階段真正接手 Issue，完成後開 PR。
 - Pull Request：保存 agent 成果與 diff，交給人類審查。
+- PR Preview：第三階段部署 PR branch 的靜態預覽，讓 reviewer 可先看成果畫面。
 - Human Reviewer：檢查 PR 是否符合 Issue 與允許範圍，再 approve 或 request changes。
 
 ## 流程圖
@@ -28,6 +29,7 @@ sequenceDiagram
     participant Simulator as Actions Simulator
     participant Copilot as Copilot Cloud Agent
     participant PR as Pull Request
+    participant Preview as PR Preview
     participant Human as Human Reviewer
 
     LocalAI->>Issue: 建立繁體中文任務 Issue
@@ -38,7 +40,9 @@ sequenceDiagram
         Issue->>Copilot: 使用 @copilot 指派方式
         Copilot->>PR: 完成任務並開 PR
     end
-    PR->>Human: 交給人類 reviewer 審查
+    PR->>Preview: 部署 pr-{number} 預覽 URL
+    Preview->>Human: 先看網頁成果
+    PR->>Human: 必要時檢查 diff 與 checks
     Human-->>PR: Approve 或 request changes
 ```
 
@@ -142,10 +146,31 @@ python scripts/create_copilot_issue.py --repo IISI-2112007/ai-coding-solved-demo
 
 它不會帶上 `cloud-agent:ready`，因此不會觸發第一階段 simulator。
 
-## Step 5：人類審查
+## Step 5：第三階段 PR Preview
+
+PR 建立或更新後，GitHub Actions 會建立預覽：
+
+```text
+.github/workflows/pr-preview.yml
+```
+
+預覽網址格式：
+
+```text
+https://iisi-2112007.github.io/ai-coding-solved-demo/pr-{PR_NUMBER}/
+```
+
+也可以手動為既有 PR 建立預覽：
+
+```powershell
+& 'C:\Program Files\GitHub CLI\gh.exe' workflow run pr-preview.yml --repo IISI-2112007/ai-coding-solved-demo -f pr_number=4
+```
+
+## Step 6：人類審查
 
 人在 PR 頁面看：
 
+- PR comment 裡的 preview URL。
 - PR 說明是否連回原始 Issue。
 - diff 是否只修改允許範圍內的檔案。
 - agent 產出是否使用繁體中文。
@@ -159,6 +184,7 @@ python scripts/create_copilot_issue.py --repo IISI-2112007/ai-coding-solved-demo
 - 第一階段 Issue 能觸發 GitHub Actions 並產生 PR。
 - 第二階段腳本能產生繁體中文 Copilot Issue。
 - 第二階段 Issue 可用 `@copilot` 指派方式交給 Copilot cloud agent。
+- PR 能產生 preview URL。
 - 人類可以在 PR 頁面審查。
 
 ## 這個 MVP 不做什麼

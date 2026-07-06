@@ -15,7 +15,7 @@
     <div class="status-strip" aria-label="目前專案狀態">
       <span>Issue 驅動</span>
       <span>雲端接手</span>
-      <span>人類審查</span>
+      <span>預覽審查</span>
     </div>
   </header>
 
@@ -31,19 +31,20 @@
         <button class="flow-step" type="button" data-stage="issue" role="tab" aria-selected="false">2 Issue</button>
         <button class="flow-step" type="button" data-stage="cloud" role="tab" aria-selected="false">3 Cloud Agent</button>
         <button class="flow-step" type="button" data-stage="pr" role="tab" aria-selected="false">4 PR</button>
-        <button class="flow-step" type="button" data-stage="review" role="tab" aria-selected="false">5 審查</button>
+        <button class="flow-step" type="button" data-stage="preview" role="tab" aria-selected="false">5 Preview</button>
+        <button class="flow-step" type="button" data-stage="review" role="tab" aria-selected="false">6 審查</button>
       </div>
 
       <div class="stage-detail">
         <div>
           <p class="stage-kicker" id="stage-kicker">本地觸發</p>
           <h3 id="stage-title">本地端 AI 發起任務</h3>
-          <p id="stage-body">本地端 AI 先把需求整理成 issue body，再透過 GitHub CLI 建立任務 issue。</p>
+          <p id="stage-body">本地端 AI 先把需求整理成繁體中文 Issue，再透過 GitHub CLI 建立任務入口。</p>
         </div>
         <ul id="stage-points">
-          <li>使用 `scripts/create_agent_issue.py`。</li>
-          <li>Issue 會帶上 `local-ai` label。</li>
-          <li>任務格式包含 goal、context、allowed scope、acceptance criteria。</li>
+          <li>第一階段使用 scripts/create_agent_issue.py。</li>
+          <li>第二階段使用 scripts/create_copilot_issue.py。</li>
+          <li>任務格式包含目標、背景、允許修改範圍與驗收標準。</li>
         </ul>
       </div>
 
@@ -52,7 +53,7 @@
         <div class="result-summary">
           <p class="eyebrow">最後成果</p>
           <h3>GitHub 上可追蹤的 agent handoff</h3>
-          <p>這個 MVP 先用 GitHub Actions 模擬 cloud agent，再進入真正 Copilot cloud agent，目標是讓 Issue、PR 和人類審查流程跑通。</p>
+          <p>這個 MVP 先用 GitHub Actions 模擬 cloud agent，再進入真正 Copilot cloud agent，最後產生 PR preview，讓人類可以先看成果再看 diff。</p>
         </div>
       </div>
     </section>
@@ -64,7 +65,7 @@
       </div>
 
       <div class="progress" aria-label="Checklist completion">
-        <span id="progress-label">0 / 6 已完成</span>
+        <span id="progress-label">0 / 7 已完成</span>
         <div class="progress-track">
           <div class="progress-bar" id="progress-bar"></div>
         </div>
@@ -94,6 +95,10 @@
         <input type="checkbox" data-check>
         <span>Copilot cloud agent Issue 入口已存在</span>
       </label>
+      <label class="check-row">
+        <input type="checkbox" data-check>
+        <span>PR Preview workflow 已存在</span>
+      </label>
     </aside>
 
     <section class="script-panel" aria-labelledby="script-title">
@@ -107,6 +112,7 @@
         <li>打開 GitHub Actions，看 Cloud Agent Simulator 接手。</li>
         <li>執行第二階段 dry-run，確認繁體中文 Copilot Issue。</li>
         <li>建立第二階段 Issue，指派 Copilot cloud agent。</li>
+        <li>打開第三階段 preview URL，看網頁成果。</li>
         <li>以人類 reviewer 角度 approve 或 request changes。</li>
       </ol>
     </section>

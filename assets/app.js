@@ -39,6 +39,16 @@ const stages = {
       "Reviewer 可以逐檔檢查。"
     ]
   },
+  preview: {
+    kicker: "PR Preview",
+    title: "先看網頁成果",
+    body: "第三階段會把 PR branch 部署到 gh-pages 的 pr-編號路徑，並在 PR 留下預覽網址。",
+    points: [
+      "預覽不是正式 production。",
+      "每個 PR 可以有自己的 preview URL。",
+      "人類可以先看成果，再回到 PR 看 diff 與 checks。"
+    ]
+  },
   review: {
     kicker: "Human Review",
     title: "人類保留最後審查權",

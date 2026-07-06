@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
   <title id="title">本地 AI 到 Cloud Agent 流程摘要</title>
-  <desc id="desc">從本地端 AI 建立 Issue，到雲端 agent 開 PR，再交由人類審查的五步驟 GitHub workflow。</desc>
+  <desc id="desc">從本地端 AI 建立 Issue，到雲端 agent 開 PR、產生 preview，再交由人類審查的 GitHub workflow。</desc>
   <rect width="900" height="520" fill="#ffffff"/>
   <rect x="40" y="42" width="820" height="436" rx="8" fill="#f6f8fb" stroke="#d8dee8"/>
   <text x="70" y="88" fill="#20262e" font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif" font-size="28" font-weight="700">本地 AI 到 Cloud Agent MVP</text>
-  <text x="70" y="120" fill="#596575" font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif" font-size="16">Issue 驅動、雲端接手、人類審查</text>
+  <text x="70" y="120" fill="#596575" font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif" font-size="16">Issue 驅動、雲端接手、預覽審查</text>
   <g font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif">
     <rect x="70" y="178" width="132" height="90" rx="8" fill="#2563a8"/>
     <text x="94" y="214" fill="#ffffff" font-size="17" font-weight="700">1 本地 AI</text>
@@ -26,8 +26,13 @@
     <text x="652" y="242" fill="#ffffff" font-size="13">審查 diff</text>
     <path d="M694 268 V330" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <path d="M684 322 L694 334 L704 322" fill="none" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
-    <rect x="566" y="334" width="256" height="88" rx="8" fill="#b95145"/>
-    <text x="610" y="370" fill="#ffffff" font-size="17" font-weight="700">5 人類審查</text>
-    <text x="610" y="398" fill="#ffffff" font-size="13">Approve 或要求修改</text>
+    <rect x="536" y="334" width="132" height="88" rx="8" fill="#2563a8"/>
+    <text x="560" y="370" fill="#ffffff" font-size="17" font-weight="700">5 Preview</text>
+    <text x="560" y="398" fill="#ffffff" font-size="13">看成果</text>
+    <path d="M668 378 H710" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
+    <path d="M702 368 L714 378 L702 388" fill="none" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
+    <rect x="714" y="334" width="116" height="88" rx="8" fill="#b95145"/>
+    <text x="732" y="370" fill="#ffffff" font-size="17" font-weight="700">6 審查</text>
+    <text x="732" y="398" fill="#ffffff" font-size="13">決策</text>
   </g>
 </svg>

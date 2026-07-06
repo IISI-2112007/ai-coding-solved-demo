@@ -60,7 +60,7 @@ python scripts/create_copilot_issue.py --repo IISI-2112007/ai-coding-solved-demo
 如果目前 GitHub CLI 支援 `agent-task`，也可以查看：
 
 ```powershell
-& 'C:\Program Files\GitHub CLI\gh.exe' agent-task list --repo IISI-2112007/ai-coding-solved-demo
+& 'C:\Program Files\GitHub CLI\gh.exe' agent-task list --limit 10
 ```
 
 ## 與第一階段的差異

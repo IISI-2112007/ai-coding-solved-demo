@@ -121,7 +121,8 @@ def main():
         default=(
             "- Copilot cloud agent 已建立 Pull Request。\n"
             "- PR 說明與新增文件使用繁體中文。\n"
-            "- PR 有連回這個 Issue，且人類 reviewer 可以判斷是否 approve。"
+            "- PR 有連回這個 Issue，且人類 reviewer 可以判斷是否 approve。\n"
+            "- 若 PR 有可視成果，PR Preview workflow 已產生或說明預覽連結。"
         ),
     )
     parser.add_argument("--create", action="store_true", help="真的建立 GitHub Issue 並指派給 Copilot cloud agent。")

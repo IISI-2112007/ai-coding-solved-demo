@@ -1,0 +1,210 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 要建立或更新預覽的 PR 編號。
+        required: true
+
+permissions:
+  contents: write
+  deployments: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: 建立 PR 預覽
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Checkout PR 內容
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Workflow dispatch 切到指定 PR
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          gh pr checkout "$INPUT_PR_NUMBER" --repo "$GITHUB_REPOSITORY"
+
+      - name: 解析 PR metadata
+        id: meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_PR_TITLE: ${{ github.event.pull_request.title }}
+          EVENT_PR_URL: ${{ github.event.pull_request.html_url }}
+          EVENT_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            PR_NUMBER="$EVENT_PR_NUMBER"
+            PR_TITLE="$EVENT_PR_TITLE"
+            PR_URL="$EVENT_PR_URL"
+            BASE_REF="$EVENT_BASE_REF"
+          else
+            PR_NUMBER="$(gh pr view "$INPUT_PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')"
+            PR_TITLE="$(gh pr view "$INPUT_PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json title --jq '.title')"
+            PR_URL="$(gh pr view "$INPUT_PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json url --jq '.url')"
+            BASE_REF="$(gh pr view "$INPUT_PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json baseRefName --jq '.baseRefName')"
+          fi
+
+          HEAD_SHA="$(git rev-parse HEAD)"
+          OWNER_LOWER="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          PREVIEW_PATH="pr-${PR_NUMBER}"
+          PREVIEW_URL="https://${OWNER_LOWER}.github.io/${REPO_NAME}/${PREVIEW_PATH}/"
+
+          {
+            echo "pr_number=$PR_NUMBER"
+            echo "pr_title=$PR_TITLE"
+            echo "pr_url=$PR_URL"
+            echo "base_ref=$BASE_REF"
+            echo "head_sha=$HEAD_SHA"
+            echo "preview_path=$PREVIEW_PATH"
+            echo "preview_url=$PREVIEW_URL"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 建立靜態預覽內容
+        env:
+          PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
+          PR_TITLE: ${{ steps.meta.outputs.pr_title }}
+          PR_URL: ${{ steps.meta.outputs.pr_url }}
+          PREVIEW_URL: ${{ steps.meta.outputs.preview_url }}
+          BASE_REF: ${{ steps.meta.outputs.base_ref }}
+        run: |
+          set -euo pipefail
+
+          rm -rf .preview
+          mkdir -p .preview
+          cp index.html .preview/index.html
+          cp -R assets .preview/assets
+          cp -R docs .preview/docs
+
+          git fetch origin "$BASE_REF" --depth=1
+          git diff --name-only "origin/${BASE_REF}...HEAD" > .preview/changed-files.txt || true
+
+          cat > .preview/preview-summary.html <<EOF
+          <!doctype html>
+          <html lang="zh-Hant">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>PR #${PR_NUMBER} 預覽摘要</title>
+            <style>
+              body { margin: 0; font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif; line-height: 1.7; color: #20262e; background: #f6f8fb; }
+              main { max-width: 880px; margin: 0 auto; padding: 36px 20px; }
+              section { border: 1px solid #d8dee8; border-radius: 8px; background: #fff; padding: 22px; }
+              a { color: #2563a8; font-weight: 700; }
+              code { background: #eef3f8; border-radius: 4px; padding: 2px 5px; }
+            </style>
+          </head>
+          <body>
+            <main>
+              <section>
+                <p>第三階段 PR Preview</p>
+                <h1>PR #${PR_NUMBER} 預覽摘要</h1>
+                <p><strong>PR：</strong><a href="${PR_URL}">${PR_TITLE}</a></p>
+                <p><strong>預覽首頁：</strong><a href="${PREVIEW_URL}">${PREVIEW_URL}</a></p>
+                <p>這個預覽是 GitHub Actions 從 PR branch 內容部署出來的靜態頁面，讓人類 reviewer 可以先看成果畫面，再視需要查看 diff。</p>
+                <p><a href="./index.html">開啟 demo 首頁</a></p>
+                <p><a href="./changed-files.txt">查看本次 PR 修改檔案清單</a></p>
+              </section>
+            </main>
+          </body>
+          </html>
+          EOF
+
+      - name: 部署到 gh-pages 的 PR 子路徑
+        id: deploy
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PREVIEW_PATH: ${{ steps.meta.outputs.preview_path }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          PUBLISH_REPO="$RUNNER_TEMP/pr-preview-publish"
+          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$PUBLISH_REPO"
+          cd "$PUBLISH_REPO"
+
+          if git ls-remote --exit-code origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          rm -rf "$PREVIEW_PATH"
+          mkdir -p "$PREVIEW_PATH"
+          cp -R "$GITHUB_WORKSPACE/.preview/." "$PREVIEW_PATH/"
+          touch .nojekyll
+
+          git config user.name "pr-preview[bot]"
+          git config user.email "pr-preview[bot]@users.noreply.github.com"
+          git add .nojekyll "$PREVIEW_PATH"
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "PR #${PR_NUMBER} preview has no changes."
+          else
+            git commit -m "deploy preview for PR #${PR_NUMBER}"
+            git push origin gh-pages
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 建立 GitHub deployment 狀態
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ steps.meta.outputs.head_sha }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
+          PREVIEW_URL: ${{ steps.meta.outputs.preview_url }}
+        run: |
+          set -euo pipefail
+
+          DEPLOYMENT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/deployments" \
+            -f ref="$HEAD_SHA" \
+            -f environment="pr-${PR_NUMBER}-preview" \
+            -f description="PR #${PR_NUMBER} 預覽" \
+            -F auto_merge=false \
+            --jq '.id')"
+
+          gh api "repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \
+            -f state="success" \
+            -f environment_url="$PREVIEW_URL" \
+            -f log_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            -f description="PR preview 已部署"
+
+      - name: 在 PR 留下預覽連結
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
+          PREVIEW_URL: ${{ steps.meta.outputs.preview_url }}
+          PR_URL: ${{ steps.meta.outputs.pr_url }}
+        run: |
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "第三階段 PR Preview 已更新：${PREVIEW_URL}
+
+          人類 reviewer 可以先看預覽成果，再回到 PR 檢查 diff 與討論：${PR_URL}"

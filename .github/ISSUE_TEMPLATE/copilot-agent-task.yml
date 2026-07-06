@@ -43,6 +43,7 @@ body:
         - Copilot cloud agent 已開 PR。
         - PR 內容使用繁體中文。
         - PR 說明可讓人類 reviewer 判斷是否 approve。
+        - 若有可視成果，PR Preview workflow 已提供預覽連結。
     validations:
       required: true
   - type: checkboxes
