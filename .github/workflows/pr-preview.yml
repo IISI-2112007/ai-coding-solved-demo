@@ -177,6 +177,7 @@ jobs:
           fi
 
       - name: 建立 GitHub deployment 狀態
+        id: pages
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ steps.meta.outputs.head_sha }}
@@ -185,6 +186,20 @@ jobs:
         run: |
           set -euo pipefail
 
+          PAGES_ENABLED=false
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" >/tmp/pages.json 2>/tmp/pages-error.txt; then
+            PAGES_ENABLED=true
+            echo "pages_enabled=true" >> "$GITHUB_OUTPUT"
+            echo "pages_url=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.html_url')" >> "$GITHUB_OUTPUT"
+          else
+            echo "pages_enabled=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "pages_error<<EOF"
+              cat /tmp/pages-error.txt
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
           DEPLOYMENT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/deployments" \
             -f ref="$HEAD_SHA" \
             -f environment="pr-${PR_NUMBER}-preview" \
@@ -192,11 +207,18 @@ jobs:
             -F auto_merge=false \
             --jq '.id')"
 
-          gh api "repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \
-            -f state="success" \
-            -f environment_url="$PREVIEW_URL" \
-            -f log_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-            -f description="PR preview 已部署"
+          if [ "$PAGES_ENABLED" = "true" ]; then
+            gh api "repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \
+              -f state="success" \
+              -f environment_url="$PREVIEW_URL" \
+              -f log_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+              -f description="PR preview 已部署"
+          else
+            gh api "repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \
+              -f state="inactive" \
+              -f log_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+              -f description="gh-pages 已更新，但 GitHub Pages 尚未啟用"
+          fi
 
       - name: 在 PR 留下預覽連結
         env:
@@ -204,7 +226,19 @@ jobs:
           PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
           PREVIEW_URL: ${{ steps.meta.outputs.preview_url }}
           PR_URL: ${{ steps.meta.outputs.pr_url }}
+          PREVIEW_PATH: ${{ steps.meta.outputs.preview_path }}
+          PAGES_ENABLED: ${{ steps.pages.outputs.pages_enabled }}
         run: |
-          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "第三階段 PR Preview 已更新：${PREVIEW_URL}
+          if [ "$PAGES_ENABLED" = "true" ]; then
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "第三階段 PR Preview 已更新：${PREVIEW_URL}
 
-          人類 reviewer 可以先看預覽成果，再回到 PR 檢查 diff 與討論：${PR_URL}"
+            人類 reviewer 可以先看預覽成果，再回到 PR 檢查 diff 與討論：${PR_URL}"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "第三階段 PR Preview 已產出檔案，但目前這個 repo 尚未啟用 GitHub Pages，或目前方案不支援 private repo Pages，因此預覽網址暫時可能是 404。
+
+            已產出的 preview 檔案：https://github.com/${GITHUB_REPOSITORY}/tree/gh-pages/${PREVIEW_PATH}
+
+            預期網址（Pages 可用後）：${PREVIEW_URL}
+
+            人類 reviewer 仍可回到 PR 檢查 diff 與討論：${PR_URL}"
+          fi

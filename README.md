@@ -86,6 +86,8 @@ PR -> GitHub Actions -> gh-pages/pr-{PR_NUMBER}/ -> Preview URL
 https://iisi-2112007.github.io/ai-coding-solved-demo/pr-{PR_NUMBER}/
 ```
 
+目前這個 private repo 的 GitHub Pages 啟用會受到方案限制；workflow 仍會產出 `gh-pages/pr-{PR_NUMBER}/` 檔案並在 PR 留言說明狀態。若要讓 preview URL 真正可點開，需要讓 repo 支援 Pages，或改接 Vercel、Netlify、Cloudflare Pages 等 preview provider。
+
 ## 語言政策
 
 之後上傳到 GitHub 的 Issue 說明、PR 說明、agent 產出文件與 runbook，預設都使用繁體中文。英文僅保留在工具名稱、GitHub label、CLI 指令、檔名與官方產品名中。

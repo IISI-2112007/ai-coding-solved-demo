@@ -93,6 +93,35 @@ Settings -> Pages -> Build and deployment -> Deploy from a branch -> gh-pages / 
 
 或由 repo owner 用 GitHub API 設定。若 GitHub Pages 尚未啟用，workflow 仍會建立 `gh-pages` branch 和 PR comment，但 preview URL 可能暫時是 404。
 
+## 目前 repo 的實測狀態
+
+這個 workflow 已能把 PR preview 檔案產出到：
+
+```text
+gh-pages/pr-4/
+```
+
+但目前 private repo 啟用 GitHub Pages 時，GitHub API 回覆：
+
+```text
+Your current plan does not support GitHub Pages for this repository.
+```
+
+因此第三階段在目前 repo 的狀態是：
+
+- preview 檔案可以產出。
+- PR comment 可以指出 preview 檔案位置。
+- deployment 可以建立，但會標記為 Pages 尚未啟用。
+- 真正可點開的 Pages URL 需要先解決 GitHub Pages 方案或 repo visibility。
+
+可選路線：
+
+- 保持 repo private，改用 Vercel、Netlify、Cloudflare Pages 或其他 preview provider。
+- 將 demo repo 改成 public，使用 GitHub Pages。
+- 升級或調整 GitHub 方案，讓 private repo 可使用 Pages。
+
+這個 repo 不會自動改 public；那是 owner 的外部決策。
+
 ## 驗收標準
 
 - PR 建立或更新時會執行 `PR Preview` workflow。
