@@ -68,6 +68,27 @@ git remote -v
 git push -u origin main
 ```
 
+接著確認 repo 的 Actions workflow 權限。Cloud Agent Simulator 需要開 branch 和 PR：
+
+```powershell
+& 'C:\Program Files\GitHub CLI\gh.exe' api repos/IISI-2112007/ai-coding-solved-demo/actions/permissions/workflow
+```
+
+期待：
+
+```json
+{
+  "default_workflow_permissions": "write",
+  "can_approve_pull_request_reviews": true
+}
+```
+
+若不是這個狀態，由 repo owner 執行：
+
+```powershell
+& 'C:\Program Files\GitHub CLI\gh.exe' api -X PUT repos/IISI-2112007/ai-coding-solved-demo/actions/permissions/workflow -f default_workflow_permissions=write -F can_approve_pull_request_reviews=true
+```
+
 ## Step 3：本地端 AI 建立 issue
 
 ```powershell

@@ -51,6 +51,27 @@ flowchart LR
 
 若 repo 已存在，只要確認 `origin` remote 和 push。
 
+接著確認 GitHub Actions 有權限建立 PR：
+
+```powershell
+& 'C:\Program Files\GitHub CLI\gh.exe' api repos/IISI-2112007/ai-coding-solved-demo/actions/permissions/workflow
+```
+
+需要看到：
+
+```json
+{
+  "default_workflow_permissions": "write",
+  "can_approve_pull_request_reviews": true
+}
+```
+
+若不是這個狀態，repo owner 需執行：
+
+```powershell
+& 'C:\Program Files\GitHub CLI\gh.exe' api -X PUT repos/IISI-2112007/ai-coding-solved-demo/actions/permissions/workflow -f default_workflow_permissions=write -F can_approve_pull_request_reviews=true
+```
+
 ### 3. 本地端 AI 發 issue
 
 在 repo 已經 push 到 GitHub 後執行：
