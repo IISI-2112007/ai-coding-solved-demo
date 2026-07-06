@@ -1,0 +1,56 @@
+name: 第二階段 Copilot Cloud Agent 任務
+description: 建立要指派給 GitHub Copilot cloud agent 的繁體中文任務。
+title: "[copilot-agent] "
+labels:
+  - local-ai
+  - copilot-cloud-agent:ready
+body:
+  - type: markdown
+    attributes:
+      value: |
+        這個 template 用於第二階段：本地端 AI 建立 Issue，接著由人類或腳本將 Issue 指派給 GitHub Copilot cloud agent。
+        這個 Issue 不會使用 `cloud-agent:ready` label，因此不會觸發第一階段的 simulator workflow。
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目標
+      description: 請用繁體中文說明希望 Copilot cloud agent 完成什麼。
+      placeholder: 請新增一份第二階段執行證據，說明真正 cloud agent 已接手並準備由人類審查。
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 背景
+      description: 請說明 repo 目前狀態、第一階段 simulator 與第二階段真正 agent 的差異。
+      placeholder: 目前 repo 已有 GitHub Actions simulator；第二階段要改由 Copilot cloud agent 建立 PR。
+    validations:
+      required: true
+  - type: textarea
+    id: allowed_scope
+    attributes:
+      label: 允許修改範圍
+      description: 請限制 Copilot cloud agent 可修改的檔案或資料夾。
+      placeholder: docs/**、README.md、DEMO_RESULTS.md；不要修改 simulator workflow。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 驗收標準
+      description: 請列出 reviewer 要檢查的完成條件。
+      placeholder: |
+        - Copilot cloud agent 已開 PR。
+        - PR 內容使用繁體中文。
+        - PR 說明可讓人類 reviewer 判斷是否 approve。
+    validations:
+      required: true
+  - type: checkboxes
+    id: review_policy
+    attributes:
+      label: 人工審查政策
+      options:
+        - label: Copilot cloud agent 不可直接 merge，必須交由人類審查。
+          required: true
+        - label: Issue、PR 說明與新增文件優先使用繁體中文。
+          required: true

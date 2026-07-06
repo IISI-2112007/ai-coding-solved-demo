@@ -11,7 +11,7 @@ def safe_issue_number(value):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate reviewable cloud-agent output for an issue.")
+    parser = argparse.ArgumentParser(description="為第一階段 simulator 產生可審查的 cloud-agent output。")
     parser.add_argument("--issue-number", required=True)
     parser.add_argument("--issue-title", required=True)
     parser.add_argument("--issue-body", required=True)
@@ -26,72 +26,72 @@ def main():
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     issue_url = f"https://github.com/{args.repository}/issues/{issue_number}"
 
-    summary = f"""# Cloud Agent Output For Issue #{issue_number}
+    summary = f"""# Cloud Agent Simulator 產出：Issue #{issue_number}
 
-## Task
+## 任務
 
 {args.issue_title}
 
-## Source
+## 來源
 
 - Issue: {issue_url}
-- Workflow run: {args.run_url}
-- Generated at: {generated_at}
+- Workflow run：{args.run_url}
+- 產生時間：{generated_at}
 
-## Agent interpretation
+## Agent 判讀
 
-The cloud-agent simulator accepted the issue, preserved the original request, and generated this reviewable output.
-This MVP intentionally keeps the output small so a human can inspect the diff before merge.
+Cloud Agent Simulator 已接手這個 Issue，保留原始需求，並產生這份可審查的輸出。
+這個 MVP 刻意讓產出維持小範圍，讓人類 reviewer 可以在 merge 前檢查 diff。
 
-## Original issue body
+## 原始 Issue 內容
 
 ```text
 {args.issue_body.strip()}
 ```
 
-## Human reviewer checklist
+## 人工審查清單
 
-- [ ] The output responds to the issue goal.
-- [ ] The changed files stay inside the allowed scope.
-- [ ] The PR links back to the issue.
-- [ ] The reviewer can request changes before merge.
+- [ ] 產出內容有回應 Issue 目標。
+- [ ] 修改檔案仍在允許修改範圍內。
+- [ ] PR 有連回原始 Issue。
+- [ ] reviewer 可以在 merge 前要求修改。
 """
 
-    pr_body = f"""# Cloud Agent Simulator Result
+    pr_body = f"""# Cloud Agent Simulator 結果
 
 Closes #{issue_number}
 
-## What happened
+## 發生了什麼
 
-The GitHub Actions cloud-agent simulator accepted issue #{issue_number}, generated a small reviewable output, and opened this PR for human review.
+GitHub Actions Cloud Agent Simulator 已接手 issue #{issue_number}，產生小範圍、可審查的輸出，並開啟這個 PR 交給人類 reviewer。
 
-## Files to review
+## 需要審查的檔案
 
 - `cloud-agent-output/issue-{issue_number}/summary.md`
 - `DEMO_RESULTS.md`
 
-## Human review checklist
+## 人工審查清單
 
-- [ ] Confirm this PR corresponds to the issue.
-- [ ] Confirm generated output is understandable.
-- [ ] Confirm the changed files are acceptable.
-- [ ] Approve, request changes, or close the PR.
+- [ ] 確認這個 PR 對應原始 Issue。
+- [ ] 確認產出內容容易理解。
+- [ ] 確認修改檔案可以接受。
+- [ ] 決定 approve、request changes 或 close PR。
 
 ## Workflow run
 
 {args.run_url}
 """
 
-    results = f"""# Demo Results
+    results = f"""# Demo 結果
 
-Latest cloud-agent simulator run:
+最新一次 Cloud Agent Simulator 執行：
 
 - Issue: {issue_url}
-- Title: {args.issue_title}
-- Generated at: {generated_at}
-- Workflow run: {args.run_url}
+- 標題：{args.issue_title}
+- 產生時間：{generated_at}
+- Workflow run：{args.run_url}
 
-The generated PR is intentionally reviewable by a human before merge.
+這個 PR 刻意保留為人類審查後再 merge。
 """
 
     (output_dir / "summary.md").write_text(summary, encoding="utf-8")

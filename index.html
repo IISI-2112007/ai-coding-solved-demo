@@ -3,40 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Local AI To Cloud Agent MVP</title>
+  <title>本地 AI 到 Cloud Agent MVP</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
   <header class="topbar">
     <div>
-      <p class="eyebrow">GitHub Workflow MVP</p>
-      <h1>Local AI To Cloud Agent</h1>
+      <p class="eyebrow">GitHub 流程 MVP</p>
+      <h1>本地 AI 到 Cloud Agent</h1>
     </div>
-    <div class="status-strip" aria-label="Current project status">
-      <span>Issue driven</span>
-      <span>Actions powered</span>
-      <span>Human reviewed</span>
+    <div class="status-strip" aria-label="目前專案狀態">
+      <span>Issue 驅動</span>
+      <span>雲端接手</span>
+      <span>人類審查</span>
     </div>
   </header>
 
   <main class="layout">
     <section class="workflow-panel" aria-labelledby="workflow-title">
       <div class="section-heading">
-        <p class="eyebrow">MVP Flow</p>
+        <p class="eyebrow">MVP 流程</p>
         <h2 id="workflow-title">從本地 AI 到 GitHub PR 審查</h2>
       </div>
 
       <div class="flow-selector" role="tablist" aria-label="Demo workflow stages">
-        <button class="flow-step active" type="button" data-stage="local" role="tab" aria-selected="true">1 Local AI</button>
+        <button class="flow-step active" type="button" data-stage="local" role="tab" aria-selected="true">1 本地 AI</button>
         <button class="flow-step" type="button" data-stage="issue" role="tab" aria-selected="false">2 Issue</button>
         <button class="flow-step" type="button" data-stage="cloud" role="tab" aria-selected="false">3 Cloud Agent</button>
         <button class="flow-step" type="button" data-stage="pr" role="tab" aria-selected="false">4 PR</button>
-        <button class="flow-step" type="button" data-stage="review" role="tab" aria-selected="false">5 Review</button>
+        <button class="flow-step" type="button" data-stage="review" role="tab" aria-selected="false">5 審查</button>
       </div>
 
       <div class="stage-detail">
         <div>
-          <p class="stage-kicker" id="stage-kicker">Local trigger</p>
+          <p class="stage-kicker" id="stage-kicker">本地觸發</p>
           <h3 id="stage-title">本地端 AI 發起任務</h3>
           <p id="stage-body">本地端 AI 先把需求整理成 issue body，再透過 GitHub CLI 建立任務 issue。</p>
         </div>
@@ -48,23 +48,23 @@
       </div>
 
       <div class="visual-row">
-        <img src="assets/process-snapshot.svg" alt="Demo workflow visual snapshot">
+        <img src="assets/process-snapshot.svg" alt="Demo 流程視覺摘要">
         <div class="result-summary">
-          <p class="eyebrow">Final Result</p>
+          <p class="eyebrow">最後成果</p>
           <h3>GitHub 上可追蹤的 agent handoff</h3>
-          <p>這個 MVP 先用 GitHub Actions 模擬 cloud agent，目標是讓 Issue、Actions、PR 和 Human Review 的流程先跑通。</p>
+          <p>這個 MVP 先用 GitHub Actions 模擬 cloud agent，再進入真正 Copilot cloud agent，目標是讓 Issue、PR 和人類審查流程跑通。</p>
         </div>
       </div>
     </section>
 
     <aside class="side-panel" aria-labelledby="checklist-title">
       <div class="section-heading">
-        <p class="eyebrow">Readiness</p>
+        <p class="eyebrow">準備狀態</p>
         <h2 id="checklist-title">MVP 檢查</h2>
       </div>
 
       <div class="progress" aria-label="Checklist completion">
-        <span id="progress-label">0 / 5 complete</span>
+        <span id="progress-label">0 / 6 已完成</span>
         <div class="progress-track">
           <div class="progress-bar" id="progress-bar"></div>
         </div>
@@ -90,18 +90,23 @@
         <input type="checkbox" data-check>
         <span>PR review checklist 已存在</span>
       </label>
+      <label class="check-row">
+        <input type="checkbox" data-check>
+        <span>Copilot cloud agent Issue 入口已存在</span>
+      </label>
     </aside>
 
     <section class="script-panel" aria-labelledby="script-title">
       <div class="section-heading">
-        <p class="eyebrow">Demo Script</p>
+        <p class="eyebrow">Demo 腳本</p>
         <h2 id="script-title">五分鐘講解順序</h2>
       </div>
       <ol class="script-list">
         <li>先展示 repo README 的流程圖。</li>
-        <li>執行本地腳本建立 GitHub issue。</li>
+        <li>執行第一階段本地腳本，建立 simulator Issue。</li>
         <li>打開 GitHub Actions，看 Cloud Agent Simulator 接手。</li>
-        <li>打開自動建立的 PR，看 generated output。</li>
+        <li>執行第二階段 dry-run，確認繁體中文 Copilot Issue。</li>
+        <li>建立第二階段 Issue，指派 Copilot cloud agent。</li>
         <li>以人類 reviewer 角度 approve 或 request changes。</li>
       </ol>
     </section>

@@ -1,32 +1,32 @@
 const stages = {
   local: {
-    kicker: "Local trigger",
+    kicker: "本地觸發",
     title: "本地端 AI 發起任務",
-    body: "本地端 AI 先把需求整理成 issue body，再透過 GitHub CLI 建立任務 issue。",
+    body: "本地端 AI 先把需求整理成繁體中文 Issue，再透過 GitHub CLI 建立任務入口。",
     points: [
-      "使用 scripts/create_agent_issue.py。",
-      "Issue 會帶上 local-ai label。",
-      "任務格式包含 goal、context、allowed scope、acceptance criteria。"
+      "第一階段使用 scripts/create_agent_issue.py。",
+      "第二階段使用 scripts/create_copilot_issue.py。",
+      "任務格式包含目標、背景、允許修改範圍與驗收標準。"
     ]
   },
   issue: {
     kicker: "GitHub Issue",
     title: "Issue 是任務交接契約",
-    body: "Issue template 固定任務欄位，讓 cloud agent 和 human reviewer 看到同一份輸入。",
+    body: "Issue template 固定任務欄位，讓 cloud agent 和人類 reviewer 看到同一份輸入。",
     points: [
-      "Goal 說明要完成什麼。",
-      "Allowed scope 限制可改範圍。",
-      "Acceptance criteria 定義完成證據。"
+      "目標說明要完成什麼。",
+      "允許修改範圍限制可改檔案。",
+      "驗收標準定義完成證據。"
     ]
   },
   cloud: {
-    kicker: "Cloud Agent Simulator",
-    title: "GitHub Actions 在雲端接手",
-    body: "當 issue 有 cloud-agent:ready label，workflow 會建立 branch 並產生 reviewable output。",
+    kicker: "Cloud Agent",
+    title: "雲端 agent 接手",
+    body: "第一階段由 GitHub Actions simulator 接手；第二階段由 Copilot cloud agent 從 Issue 接手並開 PR。",
     points: [
-      "執行 scripts/cloud_agent_simulator.py。",
-      "產生 cloud-agent-output/issue-*。",
-      "更新 DEMO_RESULTS.md。"
+      "simulator 使用 cloud-agent:ready label。",
+      "Copilot cloud agent 使用 copilot-cloud-agent:ready label。",
+      "兩條路線最後都回到 PR 交給人類審查。"
     ]
   },
   pr: {
@@ -84,7 +84,7 @@ function updateProgress() {
   const done = [...checks].filter((check) => check.checked).length;
   const total = checks.length;
   const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-  progressLabel.textContent = `${done} / ${total} complete`;
+  progressLabel.textContent = `${done} / ${total} 已完成`;
   progressBar.style.width = `${percent}%`;
 }
 

@@ -1,33 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
-  <title id="title">Local AI to Cloud Agent workflow snapshot</title>
-  <desc id="desc">A five-step GitHub workflow from local AI issue creation to human review.</desc>
+  <title id="title">本地 AI 到 Cloud Agent 流程摘要</title>
+  <desc id="desc">從本地端 AI 建立 Issue，到雲端 agent 開 PR，再交由人類審查的五步驟 GitHub workflow。</desc>
   <rect width="900" height="520" fill="#ffffff"/>
   <rect x="40" y="42" width="820" height="436" rx="8" fill="#f6f8fb" stroke="#d8dee8"/>
-  <text x="70" y="88" fill="#20262e" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Local AI To Cloud Agent MVP</text>
-  <text x="70" y="120" fill="#596575" font-family="Segoe UI, Arial, sans-serif" font-size="16">Issue-driven handoff, cloud automation, human review</text>
-  <g font-family="Segoe UI, Arial, sans-serif">
+  <text x="70" y="88" fill="#20262e" font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif" font-size="28" font-weight="700">本地 AI 到 Cloud Agent MVP</text>
+  <text x="70" y="120" fill="#596575" font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif" font-size="16">Issue 驅動、雲端接手、人類審查</text>
+  <g font-family="Segoe UI, Microsoft JhengHei, Arial, sans-serif">
     <rect x="70" y="178" width="132" height="90" rx="8" fill="#2563a8"/>
-    <text x="94" y="214" fill="#ffffff" font-size="17" font-weight="700">1 Local AI</text>
-    <text x="94" y="242" fill="#ffffff" font-size="13">Create issue</text>
+    <text x="94" y="214" fill="#ffffff" font-size="17" font-weight="700">1 本地 AI</text>
+    <text x="94" y="242" fill="#ffffff" font-size="13">建立 Issue</text>
     <path d="M202 223 H252" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <path d="M244 213 L256 223 L244 233" fill="none" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <rect x="256" y="178" width="132" height="90" rx="8" fill="#167f7a"/>
     <text x="280" y="214" fill="#ffffff" font-size="17" font-weight="700">2 Issue</text>
-    <text x="280" y="242" fill="#ffffff" font-size="13">Task contract</text>
+    <text x="280" y="242" fill="#ffffff" font-size="13">任務契約</text>
     <path d="M388 223 H438" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <path d="M430 213 L442 223 L430 233" fill="none" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <rect x="442" y="178" width="132" height="90" rx="8" fill="#2f8f55"/>
-    <text x="466" y="214" fill="#ffffff" font-size="17" font-weight="700">3 Actions</text>
-    <text x="466" y="242" fill="#ffffff" font-size="13">Cloud agent</text>
+    <text x="466" y="214" fill="#ffffff" font-size="17" font-weight="700">3 Agent</text>
+    <text x="466" y="242" fill="#ffffff" font-size="13">雲端接手</text>
     <path d="M574 223 H624" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <path d="M616 213 L628 223 L616 233" fill="none" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <rect x="628" y="178" width="132" height="90" rx="8" fill="#b7791f"/>
     <text x="652" y="214" fill="#ffffff" font-size="17" font-weight="700">4 PR</text>
-    <text x="652" y="242" fill="#ffffff" font-size="13">Review diff</text>
+    <text x="652" y="242" fill="#ffffff" font-size="13">審查 diff</text>
     <path d="M694 268 V330" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <path d="M684 322 L694 334 L704 322" fill="none" stroke="#596575" stroke-width="3" stroke-linecap="round"/>
     <rect x="566" y="334" width="256" height="88" rx="8" fill="#b95145"/>
-    <text x="610" y="370" fill="#ffffff" font-size="17" font-weight="700">5 Human Review</text>
-    <text x="610" y="398" fill="#ffffff" font-size="13">Approve or request changes</text>
+    <text x="610" y="370" fill="#ffffff" font-size="17" font-weight="700">5 人類審查</text>
+    <text x="610" y="398" fill="#ffffff" font-size="13">Approve 或要求修改</text>
   </g>
 </svg>

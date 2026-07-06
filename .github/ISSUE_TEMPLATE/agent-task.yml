@@ -1,5 +1,5 @@
-name: Local AI to Cloud Agent task
-description: Ask the cloud-agent simulator to complete a small, reviewable task.
+name: 本地 AI 到 Cloud Agent 模擬任務
+description: 交給 GitHub Actions 模擬的 cloud agent，產生一個可審查的小成果。
 title: "[agent-task] "
 labels:
   - local-ai
@@ -8,49 +8,49 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template when the local AI wants to hand a task to the cloud agent.
-        Keep the task small enough that a human can review the resulting PR.
+        這個 template 用於第一階段 simulator：本地端 AI 先把任務整理成 Issue，再由 GitHub Actions 模擬 cloud agent 開 PR。
+        請把任務切小，讓人類 reviewer 可以直接檢查 PR diff。
   - type: textarea
     id: goal
     attributes:
-      label: Goal
-      description: What should the cloud agent produce?
-      placeholder: Create a short demo report that explains the requested change.
+      label: 目標
+      description: 希望 cloud agent 產生什麼成果？
+      placeholder: 建立一份短報告，說明這次任務交接與產出證據。
     validations:
       required: true
   - type: textarea
     id: context
     attributes:
-      label: Context
-      description: What background should the agent know?
-      placeholder: This repository demonstrates a local AI to cloud-agent handoff.
+      label: 背景
+      description: Agent 需要知道哪些脈絡？
+      placeholder: 這個 repo 用來展示本地端 AI 到 cloud agent，再到人類審查的流程。
     validations:
       required: true
   - type: textarea
     id: allowed_scope
     attributes:
-      label: Allowed scope
-      description: Which files or folders may the agent change?
+      label: 允許修改範圍
+      description: Agent 可以修改哪些檔案或資料夾？
       placeholder: cloud-agent-output/** and DEMO_RESULTS.md
     validations:
       required: true
   - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria
-      description: How will a human reviewer know the task is done?
+      label: 驗收標準
+      description: 人類 reviewer 要用哪些證據判斷任務完成？
       placeholder: |
-        - A PR is opened.
-        - The PR links back to this issue.
-        - The generated report is easy to review.
+        - 已建立 Pull Request。
+        - PR 有連回這個 issue。
+        - 產出內容容易審查。
     validations:
       required: true
   - type: checkboxes
     id: handoff
     attributes:
-      label: Handoff confirmation
+      label: 交接確認
       options:
-        - label: This task is small enough for a demo PR.
+        - label: 這個任務足夠小，可以用 demo PR 審查。
           required: true
-        - label: The cloud agent may open a PR for human review.
+        - label: cloud agent 可以開 PR 交給人類審查。
           required: true

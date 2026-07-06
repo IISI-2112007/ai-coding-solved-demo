@@ -9,13 +9,13 @@ on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: Existing issue number to simulate.
+        description: 要手動模擬的既有 Issue 編號。
         required: true
       title:
-        description: Optional task title override.
+        description: 可選的任務標題覆寫。
         required: false
       body:
-        description: Optional task body override.
+        description: 可選的任務內容覆寫。
         required: false
 
 permissions:
@@ -25,7 +25,7 @@ permissions:
 
 jobs:
   simulate-cloud-agent:
-    name: Simulate cloud-agent handoff
+    name: 模擬 cloud-agent 交接
     runs-on: ubuntu-latest
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -35,7 +35,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve issue context
+      - name: 解析 Issue 脈絡
         id: issue
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -48,10 +48,10 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             echo "number=$INPUT_ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
-            echo "title=${INPUT_TITLE:-Manual cloud-agent simulation}" >> "$GITHUB_OUTPUT"
+            echo "title=${INPUT_TITLE:-手動 Cloud Agent Simulator 任務}" >> "$GITHUB_OUTPUT"
             {
               echo "body<<EOF"
-              echo "${INPUT_BODY:-Triggered manually from GitHub Actions.}"
+              echo "${INPUT_BODY:-由 GitHub Actions 手動觸發。}"
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           else
@@ -64,13 +64,13 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create cloud-agent branch
+      - name: 建立 cloud-agent branch
         run: |
           git config user.name "cloud-agent-simulator[bot]"
           git config user.email "cloud-agent-simulator[bot]@users.noreply.github.com"
           git checkout -b "cloud-agent/issue-${{ steps.issue.outputs.number }}-${{ github.run_id }}"
 
-      - name: Generate reviewable output
+      - name: 產生可審查輸出
         run: |
           python scripts/cloud_agent_simulator.py \
             --issue-number "${{ steps.issue.outputs.number }}" \
@@ -79,16 +79,16 @@ jobs:
             --repository "${{ github.repository }}" \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-      - name: Commit generated output
+      - name: Commit 產出
         run: |
           git add DEMO_RESULTS.md cloud-agent-output/
-          git commit -m "cloud agent output for issue #${{ steps.issue.outputs.number }}"
+          git commit -m "cloud agent 產出 issue #${{ steps.issue.outputs.number }}"
 
       - name: Push branch
         run: |
           git push --set-upstream origin "cloud-agent/issue-${{ steps.issue.outputs.number }}-${{ github.run_id }}"
 
-      - name: Open pull request
+      - name: 建立 Pull Request
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH_NAME: cloud-agent/issue-${{ steps.issue.outputs.number }}-${{ github.run_id }}
@@ -97,6 +97,6 @@ jobs:
           PR_URL="$(gh pr create \
             --base "$BASE_BRANCH" \
             --head "$BRANCH_NAME" \
-            --title "[cloud-agent] Complete issue #${{ steps.issue.outputs.number }}" \
+            --title "[cloud-agent] 完成 issue #${{ steps.issue.outputs.number }}" \
             --body-file "cloud-agent-output/issue-${{ steps.issue.outputs.number }}/pr-body.md")"
-          gh issue comment "${{ steps.issue.outputs.number }}" --body "Cloud Agent Simulator accepted this task and opened a PR for human review: $PR_URL"
+          gh issue comment "${{ steps.issue.outputs.number }}" --body "Cloud Agent Simulator 已接手這個任務，並開啟 PR 交給人類審查：$PR_URL"

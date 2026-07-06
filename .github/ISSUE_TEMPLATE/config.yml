@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Demo workflow docs
+  - name: Demo 流程文件
     url: https://github.com/IISI-2112007/ai-coding-solved-demo/blob/main/README.md
-    about: See README.md in this repository after the project is pushed.
+    about: 專案發布後，請先閱讀 README.md 了解第一階段 simulator 與第二階段 Copilot cloud agent 的差異。

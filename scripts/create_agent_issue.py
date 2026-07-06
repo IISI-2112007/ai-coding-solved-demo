@@ -10,6 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 GH_EXE = shutil.which("gh") or r"C:\Program Files\GitHub CLI\gh.exe"
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def run(command, check=True):
     completed = subprocess.run(
@@ -38,40 +42,40 @@ def ensure_label(name, color, description):
 
 
 def build_body(args):
-    return f"""## Goal
+    return f"""## 目標
 
 {args.goal}
 
-## Context
+## 背景
 
 {args.context}
 
-## Allowed scope
+## 允許修改範圍
 
 {args.allowed_scope}
 
-## Acceptance criteria
+## 驗收標準
 
 {args.acceptance}
 
-## Handoff confirmation
+## 交接確認
 
-- [x] This task is small enough for a demo PR.
-- [x] The cloud agent may open a PR for human review.
+- [x] 這個任務足夠小，可以用 demo PR 審查。
+- [x] cloud agent 可以開 PR 交給人類審查。
 """
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create a GitHub Issue for the cloud-agent MVP demo.")
-    parser.add_argument("--title", default="[agent-task] Generate demo handoff evidence")
-    parser.add_argument("--goal", default="Generate a small reviewable output that proves the cloud-agent handoff works.")
-    parser.add_argument("--context", default="This is an MVP demo for local AI to GitHub Issue to Cloud Agent to human review.")
+    parser = argparse.ArgumentParser(description="建立第一階段 simulator 使用的 GitHub Issue。")
+    parser.add_argument("--title", default="[agent-task] 產生 demo 交接證據")
+    parser.add_argument("--goal", default="產生一份小型、可審查的成果，用來證明本地端 AI 到 cloud agent 的交接流程可以運作。")
+    parser.add_argument("--context", default="這是本地端 AI -> GitHub Issue -> Cloud Agent -> 人類審查的 MVP demo。")
     parser.add_argument("--allowed-scope", default="cloud-agent-output/** and DEMO_RESULTS.md")
     parser.add_argument(
         "--acceptance",
-        default="- A PR is opened.\n- The PR links to the issue.\n- The output is easy for a human to review.",
+        default="- 已建立 Pull Request。\n- PR 有連回這個 issue。\n- 產出內容容易讓人類審查。",
     )
-    parser.add_argument("--dry-run", action="store_true", help="Print the issue body without creating anything.")
+    parser.add_argument("--dry-run", action="store_true", help="只列印 issue 內容，不建立 GitHub Issue。")
     args = parser.parse_args()
 
     body = build_body(args)
@@ -80,8 +84,8 @@ def main():
         return
 
     run([GH_EXE, "auth", "status"])
-    ensure_label("local-ai", "2563A8", "Issue was created by the local AI handoff script.")
-    ensure_label("cloud-agent:ready", "2F8F55", "Cloud agent simulator may accept this issue.")
+    ensure_label("local-ai", "2563A8", "由本地端 AI 交接腳本建立的 Issue。")
+    ensure_label("cloud-agent:ready", "2F8F55", "第一階段 Cloud Agent Simulator 可以接手這個 Issue。")
 
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".md", delete=False) as temp_file:
         temp_file.write(body)
