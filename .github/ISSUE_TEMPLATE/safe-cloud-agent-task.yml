@@ -1,0 +1,69 @@
+name: Cloud Agent 安全任務
+description: 建立先通過安全初審，再交給 GitHub Copilot cloud agent 的小型任務。
+title: "[safe-demo] "
+labels:
+  - local-ai
+  - demo:safe
+  - security:pending
+body:
+  - type: markdown
+    attributes:
+      value: |
+        這個 Issue 會先經過 deterministic 安全初審。只有 `security:approved` 才能指派真正的 GitHub Copilot cloud agent；不得把 GitHub Actions 當成 Agent。
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目標
+      description: 完成後，使用者可以看到或操作什麼改變？
+      placeholder: 為 Cloud Agent Flow Lab 加入一項小型、可測試的流程功能。
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 背景
+      description: Agent 需要知道哪些 repository 現況？
+    validations:
+      required: true
+  - type: textarea
+    id: allowed_scope
+    attributes:
+      label: 允許修改範圍
+      description: 請列出可修改的檔案或資料夾。
+      placeholder: |
+        - src/flow.ts
+        - src/main.ts
+        - src/flow.test.ts
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: 安全要求
+      value: |
+        - 不得新增危險 HTML sink。
+        - 不得用 URL／query parameter 決定可信權限。
+        - 不得降低 Security Gate 或人類審查要求。
+        - 不得加入真實或仿真的 secret。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 驗收標準
+      placeholder: |
+        - 新行為具有測試。
+        - npm run verify 通過。
+        - PR Preview 可操作且 HTTP 200。
+        - 完成後停在人類審查，不自動 merge。
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: 交接確認
+      options:
+        - label: 我理解 `security:blocked` 的 Issue 不得交給 Implementer Agent。
+          required: true
+        - label: 我理解 Copilot code review 不等於人類核准。
+          required: true

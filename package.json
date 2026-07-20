@@ -1,0 +1,29 @@
+{
+  "name": "cloud-agent-flow-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "以真實程式與 GitHub 證據示範 Cloud Agent、OWASP 安全閘門與人類審查流程。",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "test:python": "python -m unittest discover -s tests -p test_*.py",
+    "lint": "eslint .",
+    "lint:docs": "python scripts/check_local_markdown_links.py",
+    "security:dom": "node scripts/check-dangerous-dom.mjs",
+    "verify": "npm run lint && npm run lint:docs && npm run test && npm run test:python && npm run security:dom && npm run build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.7.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.64.0",
+    "vite": "8.1.5",
+    "vitest": "4.1.10"
+  }
+}

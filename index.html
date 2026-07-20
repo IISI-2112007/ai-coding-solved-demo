@@ -1,123 +1,178 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>本地 AI 到 Cloud Agent MVP</title>
-  <link rel="stylesheet" href="assets/styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">GitHub 流程 MVP</p>
-      <h1>本地 AI 到 Cloud Agent</h1>
-    </div>
-    <div class="status-strip" aria-label="目前專案狀態">
-      <span>Issue 驅動</span>
-      <span>雲端接手</span>
-      <span>預覽審查</span>
-    </div>
-  </header>
-
-  <main class="layout">
-    <section class="workflow-panel" aria-labelledby="workflow-title">
-      <div class="section-heading">
-        <p class="eyebrow">MVP 流程</p>
-        <h2 id="workflow-title">從本地 AI 到 GitHub PR 審查</h2>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      name="description"
+      content="Cloud Agent Flow Lab：用真實程式示範 GitHub Issue、Copilot cloud agent、OWASP 安全閘門與人類審查。"
+    >
+    <link rel="icon" href="data:,">
+    <title>Cloud Agent Flow Lab</title>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand-block">
+        <p class="eyebrow">GitHub 教學型 MVP</p>
+        <h1>Cloud Agent Flow Lab</h1>
+        <p>看得見安全 Issue 如何前進，也看得見不安全要求在哪裡被擋下。</p>
       </div>
+      <nav class="header-links" aria-label="專案連結">
+        <a href="https://github.com/IISI-2112007/ai-coding-solved-demo" target="_blank" rel="noreferrer">GitHub repository</a>
+        <a href="https://github.com/IISI-2112007/ai-coding-solved-demo/blob/main/docs/tutorial/README.md" target="_blank" rel="noreferrer">操作教學</a>
+      </nav>
+    </header>
 
-      <div class="flow-selector" role="tablist" aria-label="Demo workflow stages">
-        <button class="flow-step active" type="button" data-stage="local" role="tab" aria-selected="true">1 本地 AI</button>
-        <button class="flow-step" type="button" data-stage="issue" role="tab" aria-selected="false">2 Issue</button>
-        <button class="flow-step" type="button" data-stage="cloud" role="tab" aria-selected="false">3 Cloud Agent</button>
-        <button class="flow-step" type="button" data-stage="pr" role="tab" aria-selected="false">4 PR</button>
-        <button class="flow-step" type="button" data-stage="preview" role="tab" aria-selected="false">5 Preview</button>
-        <button class="flow-step" type="button" data-stage="review" role="tab" aria-selected="false">6 審查</button>
-      </div>
-
-      <div class="stage-detail">
-        <div>
-          <p class="stage-kicker" id="stage-kicker">本地觸發</p>
-          <h3 id="stage-title">本地端 AI 發起任務</h3>
-          <p id="stage-body">本地端 AI 先把需求整理成繁體中文 Issue，再透過 GitHub CLI 建立任務入口。</p>
+    <main>
+      <section class="workflow-band" aria-labelledby="workflow-title">
+        <div class="section-lead">
+          <div>
+            <p class="eyebrow">互動流程</p>
+            <h2 id="workflow-title">選一條路徑，逐步查看角色與證據</h2>
+          </div>
+          <div class="scenario-switch" role="group" aria-label="Demo 情境">
+            <button class="scenario-button active" type="button" data-scenario="safe" aria-pressed="true">安全 Issue</button>
+            <button class="scenario-button" type="button" data-scenario="blocked" aria-pressed="false">不安全 Issue</button>
+          </div>
         </div>
-        <ul id="stage-points">
-          <li>第一階段使用 scripts/create_agent_issue.py。</li>
-          <li>第二階段使用 scripts/create_copilot_issue.py。</li>
-          <li>任務格式包含目標、背景、允許修改範圍與驗收標準。</li>
-        </ul>
-      </div>
 
-      <div class="visual-row">
-        <img src="assets/process-snapshot.svg" alt="Demo 流程視覺摘要">
-        <div class="result-summary">
-          <p class="eyebrow">最後成果</p>
-          <h3>GitHub 上可追蹤的 agent handoff</h3>
-          <p>這個 MVP 先用 GitHub Actions 模擬 cloud agent，再進入真正 Copilot cloud agent，最後產生 PR preview，讓人類可以先看成果再看 diff。</p>
+        <div class="outcome-strip positive" id="outcome-strip" aria-live="polite">
+          <span class="outcome-dot" aria-hidden="true"></span>
+          <div>
+            <strong id="scenario-label">安全 Issue</strong>
+            <p id="scenario-summary"></p>
+          </div>
+          <p class="outcome-copy" id="scenario-outcome"></p>
         </div>
-      </div>
-    </section>
 
-    <aside class="side-panel" aria-labelledby="checklist-title">
-      <div class="section-heading">
-        <p class="eyebrow">準備狀態</p>
-        <h2 id="checklist-title">MVP 檢查</h2>
-      </div>
+        <div class="stage-track" id="stage-track" aria-label="流程階段"></div>
 
-      <div class="progress" aria-label="Checklist completion">
-        <span id="progress-label">0 / 7 已完成</span>
-        <div class="progress-track">
-          <div class="progress-bar" id="progress-bar"></div>
+        <div class="workflow-detail">
+          <article class="stage-panel" aria-live="polite">
+            <div class="stage-meta">
+              <span id="stage-position">階段 1 / 10</span>
+              <span class="status-badge" id="stage-status">完成</span>
+            </div>
+            <p class="actor" id="stage-actor"></p>
+            <h3 id="stage-title"></h3>
+            <p id="stage-action"></p>
+            <dl class="evidence-line">
+              <dt>應有證據</dt>
+              <dd id="stage-evidence"></dd>
+            </dl>
+            <div class="stage-actions">
+              <button type="button" id="previous-stage" aria-label="上一個流程階段">← 上一階段</button>
+              <button type="button" id="next-stage" aria-label="下一個流程階段">下一階段 →</button>
+            </div>
+          </article>
+
+          <aside class="evidence-panel" aria-labelledby="evidence-title">
+            <p class="eyebrow">真實 GitHub 證據</p>
+            <h3 id="evidence-title">目前已驗證的基線</h3>
+            <a class="evidence-link" href="https://github.com/IISI-2112007/ai-coding-solved-demo/issues/3" target="_blank" rel="noreferrer">
+              <span>Issue #3</span>
+              <strong>Copilot 接手任務</strong>
+            </a>
+            <a class="evidence-link" href="https://github.com/IISI-2112007/ai-coding-solved-demo/pull/4" target="_blank" rel="noreferrer">
+              <span>PR #4</span>
+              <strong>真正 Cloud Agent PR</strong>
+            </a>
+            <a class="evidence-link" href="https://iisi-2112007.github.io/ai-coding-solved-demo/pr-4/" target="_blank" rel="noreferrer">
+              <span>HTTP 200</span>
+              <strong>PR Preview</strong>
+            </a>
+            <p class="evidence-note">新的 Safe／Unsafe 實證會在此版本合併後更新；尚未完成的證據不假裝成功。</p>
+          </aside>
         </div>
-      </div>
+      </section>
 
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>GitHub CLI 已登入</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>Issue template 已存在</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>Actions workflow 已存在</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>本地 create issue 腳本已存在</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>PR review checklist 已存在</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>Copilot cloud agent Issue 入口已存在</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-check>
-        <span>PR Preview workflow 已存在</span>
-      </label>
-    </aside>
+      <section class="issue-lab" aria-labelledby="issue-lab-title">
+        <div class="section-lead compact">
+          <div>
+            <p class="eyebrow">Issue 安全初審</p>
+            <h2 id="issue-lab-title">在交給 Cloud Agent 前檢查需求</h2>
+          </div>
+          <p>這是教學用 deterministic gate；真正 AI review 仍在 PR 由 Copilot code review 執行。</p>
+        </div>
 
-    <section class="script-panel" aria-labelledby="script-title">
-      <div class="section-heading">
-        <p class="eyebrow">Demo 腳本</p>
-        <h2 id="script-title">五分鐘講解順序</h2>
-      </div>
-      <ol class="script-list">
-        <li>先展示 repo README 的流程圖。</li>
-        <li>執行第一階段本地腳本，建立 simulator Issue。</li>
-        <li>打開 GitHub Actions，看 Cloud Agent Simulator 接手。</li>
-        <li>執行第二階段 dry-run，確認繁體中文 Copilot Issue。</li>
-        <li>建立第二階段 Issue，指派 Copilot cloud agent。</li>
-        <li>打開第三階段 preview URL，看網頁成果。</li>
-        <li>以人類 reviewer 角度 approve 或 request changes。</li>
-      </ol>
-    </section>
-  </main>
+        <div class="issue-grid">
+          <form id="issue-form" class="issue-form">
+            <label for="issue-title">Issue 標題</label>
+            <input id="issue-title" name="title" type="text" autocomplete="off">
+            <label for="issue-body">需求、範圍與驗收</label>
+            <textarea id="issue-body" name="body" rows="7"></textarea>
+            <div class="form-actions">
+              <button type="button" class="secondary" id="load-safe">載入安全範例</button>
+              <button type="button" class="secondary danger-outline" id="load-blocked">載入阻擋範例</button>
+              <button type="submit">執行 OWASP 初審</button>
+            </div>
+          </form>
 
-  <script src="assets/app.js"></script>
-</body>
+          <div class="validation-result neutral" id="validation-result" aria-live="polite">
+            <p class="result-label">尚未檢查</p>
+            <h3 id="validation-title">先載入範例或輸入一個 Issue</h3>
+            <p id="validation-summary">檢核結果會說明是否可以交給實作 Agent。</p>
+            <ul id="validation-findings"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="control-band" aria-labelledby="control-title">
+        <div class="section-lead compact">
+          <div>
+            <p class="eyebrow">四層安全控制</p>
+            <h2 id="control-title">AI 提醒風險，機器強制檢核，人類做決定</h2>
+          </div>
+          <a href="./docs/security/owasp-control-matrix.md">查看 OWASP Top 10:2025 control matrix</a>
+        </div>
+        <div class="control-list">
+          <article>
+            <span>01</span>
+            <h3>Issue 初審</h3>
+            <p>先擋明確要求弱化權限或插入未過濾 HTML 的任務。</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Copilot AI review</h3>
+            <p>依 OWASP 清單提供情境判讀，但 review 本身只留下 Comment。</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Actions gate</h3>
+            <p>test、lint、build、DOM XSS、CodeQL 與 dependency review 可重複執行。</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Human approval</h3>
+            <p>整合需求、Preview、diff 與風險，決定退回或合併。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="review-band" aria-labelledby="review-title">
+        <div class="section-lead compact">
+          <div>
+            <p class="eyebrow">人類 PR 審查</p>
+            <h2 id="review-title">六個證據都看過，才做最後決定</h2>
+          </div>
+          <p id="review-progress">0 / 6 已確認</p>
+        </div>
+        <div class="review-checks">
+          <label><input type="checkbox" data-review-check><span>Issue 範圍與驗收清楚</span></label>
+          <label><input type="checkbox" data-review-check><span>Preview 行為符合需求</span></label>
+          <label><input type="checkbox" data-review-check><span>Files changed 沒有越界</span></label>
+          <label><input type="checkbox" data-review-check><span>Required checks 全數通過</span></label>
+          <label><input type="checkbox" data-review-check><span>AI security findings 已處理</span></label>
+          <label><input type="checkbox" data-review-check><span>殘餘風險可接受</span></label>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Cloud Agent 不等於 GitHub Actions；Copilot review 也不等於人類核准。</p>
+      <a href="https://github.com/IISI-2112007/ai-coding-solved-demo" target="_blank" rel="noreferrer">查看完整 repository</a>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

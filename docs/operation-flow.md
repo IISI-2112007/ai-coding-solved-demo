@@ -1,4 +1,6 @@
-# MVP 實務操作流程
+# MVP 實務操作流程（歷史版）
+
+> 這是第一至第三階段的歷史操作紀錄。新的主要入口是 [Cloud Agent Flow Lab 操作教學](tutorial/README.md)，包含真正 TypeScript app、Issue 安全初審、OWASP review 與 Actions gate。
 
 ## 目的
 

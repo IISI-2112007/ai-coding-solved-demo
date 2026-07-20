@@ -1,133 +1,117 @@
-# Local AI To Cloud Agent MVP
+# Cloud Agent Flow Lab
 
-這個專案是一個 GitHub workflow demo，目標是展示一條最小可行流程：
+這是一個真正可執行、可測試、可由 GitHub Copilot cloud agent 修改的教學型 MVP。它用同一個 repository 展示安全任務如何前進，也展示帶有 OWASP 風險的 Issue 如何被擋下。
 
 ```text
-本地端 AI -> GitHub Issue -> Cloud Agent -> Pull Request -> Human Review
+Local AI -> GitHub Issue -> Issue 安全初審 -> Copilot cloud agent -> PR
+         -> Copilot code review -> Actions gate -> PR Preview -> Human decision
 ```
 
-第一階段先用 GitHub Actions 模擬 cloud agent，證明 Issue、Actions、PR 與人類審查節點都能跑通。第二階段改成真正的 GitHub Copilot cloud agent：由本地端 AI 建立繁體中文 Issue，指派給 Copilot cloud agent，完成後開 PR。第三階段補上 PR Preview，讓人類可以先看網頁成果，再決定是否深入看 diff。
+GitHub Actions 不是 cloud agent；Copilot code review 也不是人類核准。
 
-## 目前成果
+## 十分鐘開始
 
-- 本地端腳本可以建立第一階段 simulator Issue：[scripts/create_agent_issue.py](scripts/create_agent_issue.py)
-- 第二階段腳本可以建立要交給 Copilot cloud agent 的 Issue：[scripts/create_copilot_issue.py](scripts/create_copilot_issue.py)
-- 第一階段 Issue template：[.github/ISSUE_TEMPLATE/agent-task.yml](.github/ISSUE_TEMPLATE/agent-task.yml)
-- 第二階段 Copilot Issue template：[.github/ISSUE_TEMPLATE/copilot-agent-task.yml](.github/ISSUE_TEMPLATE/copilot-agent-task.yml)
-- GitHub Actions simulator：[.github/workflows/cloud-agent-simulator.yml](.github/workflows/cloud-agent-simulator.yml)
-- PR Preview workflow：[.github/workflows/pr-preview.yml](.github/workflows/pr-preview.yml)
-- Cloud Agent Simulator 產出器：[scripts/cloud_agent_simulator.py](scripts/cloud_agent_simulator.py)
-- 第二階段 runbook：[docs/phase-2-copilot-cloud-agent.md](docs/phase-2-copilot-cloud-agent.md)
-- 第三階段 runbook：[docs/phase-3-pr-preview.md](docs/phase-3-pr-preview.md)
-- 完整流程總覽：[docs/end-to-end-process.md](docs/end-to-end-process.md)
-- 實務操作流程：[docs/operation-flow.md](docs/operation-flow.md)
-- Demo 頁面：[index.html](index.html)
+### 1. 在本機執行真正的應用
 
-## 流程圖
+需求：Node.js 20.19 以上、Python 3.9 以上、已登入的 GitHub CLI。CI 使用 Node.js 24。
+
+```powershell
+npm ci --ignore-scripts
+npm run verify
+npm run dev
+```
+
+開啟終端顯示的網址，在 `Cloud Agent Flow Lab` 切換「安全 Issue／不安全 Issue」，再用 Issue 安全初審表單測試 A01 與 A05。
+
+### 2. 先看兩個 Issue 的 dry-run
+
+```powershell
+python scripts/create_demo_issue.py --scenario safe --dry-run
+python scripts/create_demo_issue.py --scenario unsafe --dry-run
+```
+
+預設永遠是 dry-run。只有明確加上 `--create` 才會在 GitHub 建立 Issue。
+
+### 3. 跑完整 GitHub Demo
+
+先執行 Unsafe negative test，確認 `Issue Security Intake` 加上 `security:blocked` 且沒有指派 Copilot：
+
+```powershell
+python scripts/create_demo_issue.py --scenario unsafe --create
+```
+
+再建立 Safe Issue。腳本會等 `security:approved`，通過後才透過 GitHub Issue API 指派真正的 Copilot cloud agent，並選用 `implementer` custom agent：
+
+```powershell
+python scripts/create_demo_issue.py --scenario safe --create
+```
+
+Copilot 完成後會開 PR。接著要求 Copilot code review、等待 `Security Gate` 與 `PR Preview`，最後由人類決定 Request changes 或 merge。
+
+## 可操作成果
+
+- Vite + TypeScript 應用：[index.html](index.html)、[src/main.ts](src/main.ts)、[src/flow.ts](src/flow.ts)
+- 單元測試：[src/flow.test.ts](src/flow.test.ts)、[tests/test_issue_security_gate.py](tests/test_issue_security_gate.py)
+- Issue 建立腳本：[scripts/create_demo_issue.py](scripts/create_demo_issue.py)
+- DOM XSS gate：[scripts/check-dangerous-dom.mjs](scripts/check-dangerous-dom.mjs)
+- Custom agents：[Implementer](.github/agents/implementer.agent.md)、[OWASP Security Reviewer](.github/agents/owasp-security-reviewer.agent.md)
+- PR 安全閘門：[.github/workflows/security-gate.yml](.github/workflows/security-gate.yml)
+- Issue 安全初審：[.github/workflows/issue-security-intake.yml](.github/workflows/issue-security-intake.yml)
+- Vite build 預覽：[.github/workflows/pr-preview.yml](.github/workflows/pr-preview.yml)
+- OWASP 檢核：[checklist](docs/security/owasp-top-10-2025-checklist.md)、[control matrix](docs/security/owasp-control-matrix.md)
+
+## 完整教學
+
+- [教學入口](docs/tutorial/README.md)
+- [完整架構](docs/tutorial/architecture.md)
+- [如何建立合格 Issue](docs/tutorial/create-issue.md)
+- [如何指派與查看 Cloud Agent](docs/tutorial/cloud-agent.md)
+- [如何執行 AI／OWASP 審查](docs/tutorial/ai-security-review.md)
+- [如何進行人類 PR 審查](docs/tutorial/human-pr-review.md)
+- [Safe／Unsafe Demo 腳本](docs/tutorial/demo-script.md)
+- [目前完成度與限制](docs/tutorial/current-status.md)
+
+## 角色分工
 
 ```mermaid
 flowchart LR
-    A["Local AI<br/>本地端整理需求"] --> B["GitHub Issue<br/>繁體中文任務說明"]
-    B --> C{"階段選擇"}
-    C -->|"第一階段"| D["GitHub Actions<br/>Cloud Agent Simulator"]
-    C -->|"第二階段"| E["GitHub Copilot<br/>Cloud Agent"]
-    D --> F["Pull Request"]
-    E --> F
-    F --> P["PR Preview<br/>網頁成果預覽"]
-    P --> G["Human Review"]
-    G --> H{"Approve?"}
-    H -->|"Request changes"| B
-    H -->|"Approve / merge"| I["Accepted result"]
+    L["Local AI<br/>整理與建立 Issue"] --> I["Issue safety gate<br/>規則型安全初審"]
+    I -->|"security:approved"| C["Copilot cloud agent<br/>實作並開 PR"]
+    I -->|"security:blocked"| B["Blocked<br/>不得交給實作 Agent"]
+    C --> R["Copilot code review<br/>OWASP Comment"]
+    C --> A["GitHub Actions<br/>Required checks"]
+    C --> P["PR Preview<br/>實際操作成果"]
+    R --> H["Human reviewer"]
+    A --> H
+    P --> H
+    H -->|"Request changes"| C
+    H -->|"Accept"| M["Merge"]
 ```
 
-## 第一階段：Simulator
+## 現有 GitHub 基線證據
 
-第一階段不使用真正 LLM agent，而是用 GitHub Actions 模擬 cloud agent。它的價值是先把 GitHub 上的任務交接骨架跑通。
+- 真正 Copilot cloud agent Issue：[Issue #3](https://github.com/IISI-2112007/ai-coding-solved-demo/issues/3)
+- 真正 Copilot cloud agent PR：[PR #4](https://github.com/IISI-2112007/ai-coding-solved-demo/pull/4)
+- 已驗證 HTTP 200 的舊版 Preview：[PR #4 Preview](https://iisi-2112007.github.io/ai-coding-solved-demo/pr-4/)
 
-```powershell
-python scripts/create_agent_issue.py
-```
+新的 Safe／Unsafe 證據會在本版本進入 default branch 後建立；未成功的項目不得描述為已完成。
 
-這會建立帶有 `local-ai` 與 `cloud-agent:ready` label 的 Issue。GitHub Actions 看到 `cloud-agent:ready` 後會產生 branch、輸出文件、PR，並把 PR 連結留言回 Issue。
+## 歷史 Simulator
 
-## 第二階段：Copilot Cloud Agent
+`.github/workflows/cloud-agent-simulator.yml` 與 `scripts/create_agent_issue.py` 是第一版歷史教學，用來說明 Issue／Actions／PR 骨架。它不是 Cloud Agent，也不再是主要 Demo 路徑。
 
-第二階段改走真正的 GitHub Copilot cloud agent。先 dry-run 看即將上傳的繁體中文 Issue 內容：
+## 安全與 MVP 邊界
 
-```powershell
-python scripts/create_copilot_issue.py --repo IISI-2112007/ai-coding-solved-demo --dry-run
-```
-
-確認後才建立 Issue 並指派給 Copilot cloud agent：
-
-```powershell
-python scripts/create_copilot_issue.py --repo IISI-2112007/ai-coding-solved-demo --create
-```
-
-這條路線會使用 `copilot-cloud-agent:ready` label，不會使用 `cloud-agent:ready`，因此不會觸發第一階段 simulator workflow。
-
-## 第三階段：PR Preview
-
-第三階段讓每個 PR 都能產生一個可點的預覽網址。這不是正式部署，也不代表 PR 已接受；它是人類審查前的成果畫面。
-
-```text
-PR -> GitHub Actions -> gh-pages/pr-{PR_NUMBER}/ -> Preview URL
-```
-
-手動為既有 PR 建立 preview：
-
-```powershell
-& 'C:\Program Files\GitHub CLI\gh.exe' workflow run pr-preview.yml --repo IISI-2112007/ai-coding-solved-demo -f pr_number=4
-```
-
-預覽網址格式：
-
-```text
-https://iisi-2112007.github.io/ai-coding-solved-demo/pr-{PR_NUMBER}/
-```
-
-目前 repo 已改為 public，GitHub Pages 已啟用。PR #4 preview URL 已實測可開：
-
-```text
-https://iisi-2112007.github.io/ai-coding-solved-demo/pr-4/
-```
-
-Provider 選擇與取捨請看：[docs/preview-provider-decision.md](docs/preview-provider-decision.md)
-
-## 語言政策
-
-之後上傳到 GitHub 的 Issue 說明、PR 說明、agent 產出文件與 runbook，預設都使用繁體中文。英文僅保留在工具名稱、GitHub label、CLI 指令、檔名與官方產品名中。
+- OWASP Top 10 是風險 awareness 基準，不是認證。
+- Copilot code review 只留下 Comment，不會阻擋 merge。
+- Public repository 目前不能使用 Copilot Automations，因此不假裝兩個 agents 能自動可信接力。
+- 不自動 merge；人類保留最後決定。
+- Preview 是 PR 成果畫面，不是 production deployment。
 
 ## 官方參考
 
-- [Starting Copilot sessions](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/start-copilot-sessions)
-- [Using Copilot cloud agent on GitHub](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-agent-on-github)
-- [Using Copilot cloud agent from GitHub CLI](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-agent-from-github-cli)
-- [Managing environments for deployment](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
-- [Configuring a GitHub Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
-
-## 本地驗證
-
-```powershell
-python scripts/verify_mvp.py
-python scripts/create_agent_issue.py --dry-run
-python scripts/create_copilot_issue.py --repo IISI-2112007/ai-coding-solved-demo --dry-run
-node --check assets\app.js
-```
-
-## Demo 講法
-
-1. 打開 `index.html`，說明整體流程。
-2. 展示第一階段：本地端 AI 建立 Issue，GitHub Actions simulator 開 PR。
-3. 展示第二階段：本地端 AI 建立繁體中文 Issue，指派給 Copilot cloud agent。
-4. 展示第三階段：PR Preview workflow 在 PR 留下預覽 URL。
-5. 到 GitHub 看 Issue、agent session、PR 與 preview。
-6. 以人類 reviewer 身分先看成果，再檢查 diff，決定 approve 或 request changes。
-
-## MVP 邊界
-
-- 不自動 merge。
-- 不跳過人類 review。
-- 第一階段 simulator 不等於真正 cloud agent。
-- 第二階段是否能啟動 Copilot cloud agent，取決於 GitHub 帳號、Copilot 方案、repo 設定與 GitHub 當前功能開放狀態。
-- 第三階段 preview 不等於正式 production deployment。
+- [Using Copilot cloud agent on GitHub](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-on-github)
+- [Creating custom agents](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents)
+- [Using GitHub Copilot code review](https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/copilot-code-review)
+- [Dependency review action](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/manage-your-dependency-security/configure-dependency-review-action)
+- [OWASP Top 10:2025](https://owasp.org/Top10/)

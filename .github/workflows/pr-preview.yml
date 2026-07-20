@@ -87,7 +87,19 @@ jobs:
             echo "preview_url=$PREVIEW_URL"
           } >> "$GITHUB_OUTPUT"
 
-      - name: 建立靜態預覽內容
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 建立 production build
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: 建立 PR 預覽內容
         env:
           PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
           PR_TITLE: ${{ steps.meta.outputs.pr_title }}
@@ -99,9 +111,7 @@ jobs:
 
           rm -rf .preview
           mkdir -p .preview
-          cp index.html .preview/index.html
-          cp -R assets .preview/assets
-          cp -R docs .preview/docs
+          cp -R dist/. .preview/
 
           git fetch origin "$BASE_REF" --depth=1
           git diff --name-only "origin/${BASE_REF}...HEAD" > .preview/changed-files.txt || true
@@ -112,7 +122,7 @@ jobs:
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>PR #${PR_NUMBER} 預覽摘要</title>
+            <title>Cloud Agent Flow Lab PR #${PR_NUMBER} 預覽摘要</title>
             <style>
               body { margin: 0; font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif; line-height: 1.7; color: #20262e; background: #f6f8fb; }
               main { max-width: 880px; margin: 0 auto; padding: 36px 20px; }
@@ -124,11 +134,11 @@ jobs:
           <body>
             <main>
               <section>
-                <p>第三階段 PR Preview</p>
+                <p>Cloud Agent Flow Lab PR Preview</p>
                 <h1>PR #${PR_NUMBER} 預覽摘要</h1>
                 <p><strong>PR：</strong><a href="${PR_URL}">${PR_TITLE}</a></p>
                 <p><strong>預覽首頁：</strong><a href="${PREVIEW_URL}">${PREVIEW_URL}</a></p>
-                <p>這個預覽是 GitHub Actions 從 PR branch 內容部署出來的靜態頁面，讓人類 reviewer 可以先看成果畫面，再視需要查看 diff。</p>
+                <p>這個預覽是 GitHub Actions 從 PR branch 的 Vite production build 部署而來，讓人類 reviewer 可以先操作成果，再檢查 diff、tests 與安全 findings。</p>
                 <p><a href="./index.html">開啟 demo 首頁</a></p>
                 <p><a href="./changed-files.txt">查看本次 PR 修改檔案清單</a></p>
               </section>
@@ -230,11 +240,11 @@ jobs:
           PAGES_ENABLED: ${{ steps.pages.outputs.pages_enabled }}
         run: |
           if [ "$PAGES_ENABLED" = "true" ]; then
-            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "第三階段 PR Preview 已更新：${PREVIEW_URL}
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Cloud Agent Flow Lab PR Preview 已更新：${PREVIEW_URL}
 
             人類 reviewer 可以先看預覽成果，再回到 PR 檢查 diff 與討論：${PR_URL}"
           else
-            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "第三階段 PR Preview 已產出檔案，但目前這個 repo 尚未啟用 GitHub Pages，或目前方案不支援 private repo Pages，因此預覽網址暫時可能是 404。
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Cloud Agent Flow Lab PR Preview 已產出 build 檔案，但目前這個 repo 尚未啟用 GitHub Pages，或目前方案不支援 private repo Pages，因此預覽網址暫時可能是 404。
 
             已產出的 preview 檔案：https://github.com/${GITHUB_REPOSITORY}/tree/gh-pages/${PREVIEW_PATH}
 
