@@ -79,8 +79,26 @@ jobs:
             gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" "${REMOVE_ARGS[@]}" --add-label "security:blocked"
           fi
 
-      - name: 留下安全初審證據
+      - name: 建立或更新安全初審證據
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
-        run: gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file .issue-security-report.md
+        run: |
+          set -euo pipefail
+
+          COMMENT_ID="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- issue-security-intake -->"))) | .id' \
+            | tail -n 1)"
+
+          if [ -n "$COMMENT_ID" ]; then
+            jq -Rs '{body: .}' .issue-security-report.md \
+              | gh api --method PATCH \
+                "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+                --input - >/dev/null
+            echo "Updated security intake comment ${COMMENT_ID}."
+          else
+            gh issue comment "$ISSUE_NUMBER" \
+              --repo "$GITHUB_REPOSITORY" \
+              --body-file .issue-security-report.md
+          fi

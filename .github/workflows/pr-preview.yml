@@ -210,12 +210,23 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           fi
 
-          DEPLOYMENT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/deployments" \
-            -f ref="$HEAD_SHA" \
-            -f environment="pr-${PR_NUMBER}-preview" \
-            -f description="PR #${PR_NUMBER} 預覽" \
-            -F auto_merge=false \
-            --jq '.id')"
+          DEPLOYMENT_ID="$(jq -n \
+            --arg ref "$HEAD_SHA" \
+            --arg environment "pr-${PR_NUMBER}-preview" \
+            --arg description "PR #${PR_NUMBER} 預覽" \
+            '{
+              ref: $ref,
+              environment: $environment,
+              description: $description,
+              auto_merge: false,
+              required_contexts: [],
+              transient_environment: true,
+              production_environment: false
+            }' \
+            | gh api --method POST \
+              "repos/${GITHUB_REPOSITORY}/deployments" \
+              --input - \
+              --jq '.id')"
 
           if [ "$PAGES_ENABLED" = "true" ]; then
             gh api "repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \

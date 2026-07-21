@@ -74,7 +74,11 @@ require("github/codeql-action/analyze@v4" in security_workflow, "Security Gate i
 require("npm run security:dom" in security_workflow, "Security Gate includes DOM XSS check")
 require("issue_security_gate.py" in intake_workflow, "Issue workflow runs deterministic gate")
 require("security:blocked" in intake_workflow, "Issue workflow can block unsafe tasks")
+require("<!-- issue-security-intake -->" in intake_workflow, "Issue workflow finds the existing security report marker")
+require("--method PATCH" in intake_workflow, "Issue workflow updates an existing security report comment")
 require("npm run build" in preview_workflow and "dist/." in preview_workflow, "Preview deploys Vite build output")
+require("required_contexts: []" in preview_workflow, "Preview deployment is independent from other check results")
+require("transient_environment: true" in preview_workflow, "Preview deployment is marked as transient")
 require("Copilot review 只能提供 Comment" in copilot_instructions, "Copilot instructions state AI review limitation")
 for number in range(1, 11):
     require(f"A{number:02d}:2025" in checklist, f"checklist includes A{number:02d}:2025")
