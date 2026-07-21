@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildScenario, clampStageIndex, validateIssueDraft } from "./flow";
+import {
+  OWASP_CATEGORY_LABELS,
+  buildScenario,
+  clampStageIndex,
+  filterStagesByOwaspCategory,
+  validateIssueDraft,
+} from "./flow";
 
 describe("Cloud Agent 流程模型", () => {
   it("安全情境停在人類審查，不會自動 merge", () => {
@@ -44,5 +50,51 @@ describe("Cloud Agent 流程模型", () => {
   it("流程導覽不會超出邊界", () => {
     expect(clampStageIndex(-1, 10)).toBe(0);
     expect(clampStageIndex(12, 10)).toBe(9);
+  });
+});
+
+describe("OWASP 風險篩選", () => {
+  it("依 A01:2025 篩選：回傳含安全初審、AI Review 與人類審查的階段", () => {
+    const stages = buildScenario("safe").stages;
+    const result = filterStagesByOwaspCategory(stages, "A01:2025");
+    const ids = result.map((stage) => stage.id);
+    expect(ids).toContain("intake");
+    expect(ids).toContain("ai-review");
+    expect(ids).toContain("human-review");
+    expect(ids).not.toContain("local-ai");
+    expect(ids).not.toContain("decision");
+  });
+
+  it("依 A03:2025 篩選：回傳含 Cloud Agent、AI Review 與 Actions 的階段（軟體供應鏈）", () => {
+    const stages = buildScenario("safe").stages;
+    const result = filterStagesByOwaspCategory(stages, "A03:2025");
+    const ids = result.map((stage) => stage.id);
+    expect(ids).toContain("cloud-agent");
+    expect(ids).toContain("ai-review");
+    expect(ids).toContain("actions");
+    expect(ids).not.toContain("intake");
+  });
+
+  it("依 A08:2025 篩選：只回傳 Actions 階段", () => {
+    const stages = buildScenario("safe").stages;
+    const result = filterStagesByOwaspCategory(stages, "A08:2025");
+    const ids = result.map((stage) => stage.id);
+    expect(ids).toEqual(["actions"]);
+  });
+
+  it("篩選結果在 blocked 情境下與 safe 情境階段 id 相同", () => {
+    const safeStages = buildScenario("safe").stages;
+    const blockedStages = buildScenario("blocked").stages;
+    const safeIds = filterStagesByOwaspCategory(safeStages, "A01:2025").map((s) => s.id);
+    const blockedIds = filterStagesByOwaspCategory(blockedStages, "A01:2025").map((s) => s.id);
+    expect(safeIds).toEqual(blockedIds);
+  });
+
+  it("OWASP_CATEGORY_LABELS 包含所有預期分類的繁體中文標籤", () => {
+    expect(OWASP_CATEGORY_LABELS["A01:2025"]).toBeTruthy();
+    expect(OWASP_CATEGORY_LABELS["A03:2025"]).toBeTruthy();
+    expect(OWASP_CATEGORY_LABELS["A05:2025"]).toBeTruthy();
+    expect(OWASP_CATEGORY_LABELS["A06:2025"]).toBeTruthy();
+    expect(OWASP_CATEGORY_LABELS["A08:2025"]).toBeTruthy();
   });
 });
