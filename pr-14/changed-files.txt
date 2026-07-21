@@ -1,2 +1,0 @@
-.github/workflows/issue-security-intake.yml
-scripts/verify_mvp.py
