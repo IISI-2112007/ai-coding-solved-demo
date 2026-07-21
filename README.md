@@ -73,13 +73,7 @@ Copilot 完成後會開 PR。接著要求 Copilot code review、等待 `Security
 
 ## 人類實際要做什麼
 
-本地端 AI、Copilot cloud agent 與 GitHub Actions 會完成大部分技術工作；人類保留三個不同層次的決定：
-
-1. `Approve workflows to run`：只允許 GitHub 執行測試，不代表接受程式碼，也不會修改 `main`。
-2. `Approve`：表示人類已完成 PR 審查，但程式碼仍未進入 `main`。
-3. `Merge`：接受這次修改並放入 `main`，是最後且真正會改變正式版本的動作。
-
-實際操作前先閱讀[人類 PR 審查](docs/tutorial/human-pr-review.md)。Copilot review 與綠色 checks 都是證據，不會取代人類的 Merge 決定。
+`Approve workflows to run` 只允許測試，`Approve` 留下人類審查紀錄，只有 `Merge` 會把修改放入 `main`。完整操作順序與判斷方式集中在[人類 PR 審查](docs/tutorial/human-pr-review.md)；Copilot review 與綠色 checks 都是證據，不會取代人類決定。
 
 ## 角色分工
 

@@ -37,15 +37,13 @@ GitHub 上常見的三個動作意義不同：
 - Merge：需求、Preview、diff、checks 與殘餘風險都可接受。
 - Close：需求方向錯誤、不安全要求不應實作，或成本已不值得繼續。
 
-## 單一帳號限制
+## 單一帳號與職責分離
 
-GitHub 不允許指派 Copilot 執行 Issue 的同一個使用者 Approve 該 Copilot PR。因此本個人 repository 若只有一位 maintainer：
+本 Demo 已驗證 repository owner 可以對 Copilot cloud agent 建立的 PR 留下人類 `Approve`，再決定是否 Merge。這足以展示「AI 作者、人類核准」的流程，但只有一位 maintainer 時，仍不等於組織治理中的第二人職責分離。
 
-- 人類仍可逐項審查並以 merge／不 merge 做最後決定。
-- 不應設定無人能滿足的 required approving review。
-- 若要正式展示 Approve gate，請加入第二位有 write 權限的 collaborator，再要求一個 human approval。
-
-Copilot 的 Comment review 不可用來替代這個 human approval。
+- 個人 Demo：owner 可審查 Copilot PR，留下 Approval 並做最後 Merge 決定。
+- 團隊治理：若政策要求第二位人類 reviewer，應加入另一位有適當權限的 collaborator，再以 ruleset 要求獨立 approval。
+- Copilot 的 Comment review 不可替代人類 approval，也不會自行阻擋 Merge。
 
 ## 本 Demo 的實際例子
 

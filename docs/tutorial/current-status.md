@@ -27,7 +27,7 @@
 
 - Repository 是 public，Copilot Automations 目前不可用。
 - Copilot code review 只留下 Comment，不會阻擋 merge。
-- 指派 Copilot 的同一使用者不能 Approve 該 PR；required human approval 需要第二位 collaborator。
+- 個人 repository 的 owner 已可對 Copilot 作者的 PR 留下 Approval；若政策要求第二位人類的職責分離，仍需另一位 collaborator 與對應 ruleset。
 - GitHub App integration 對本 repository 的部分寫入操作可能回傳 403；repository 寫入改用已登入且具有權限的 GitHub CLI。
 
 尚未有真實 URL 的項目一律標示待驗證，不製作假成功證據。
