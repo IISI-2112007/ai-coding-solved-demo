@@ -65,13 +65,14 @@ describe("OWASP 風險篩選", () => {
     expect(ids).not.toContain("decision");
   });
 
-  it("依 A03:2025 篩選：回傳含安全初審、Cloud Agent 與 AI Review 的階段", () => {
+  it("依 A03:2025 篩選：回傳含 Cloud Agent、AI Review 與 Actions 的階段（軟體供應鏈）", () => {
     const stages = buildScenario("safe").stages;
     const result = filterStagesByOwaspCategory(stages, "A03:2025");
     const ids = result.map((stage) => stage.id);
-    expect(ids).toContain("intake");
     expect(ids).toContain("cloud-agent");
     expect(ids).toContain("ai-review");
+    expect(ids).toContain("actions");
+    expect(ids).not.toContain("intake");
   });
 
   it("依 A08:2025 篩選：只回傳 Actions 階段", () => {

@@ -10,9 +10,9 @@ import type {
 
 export const OWASP_CATEGORY_LABELS: Record<OwaspCategory, string> = {
   "A01:2025": "A01 存取控制失效",
-  "A03:2025": "A03 注入攻擊",
-  "A05:2025": "A05 安全設定錯誤",
-  "A06:2025": "A06 已知弱點元件",
+  "A03:2025": "A03 軟體供應鏈失效",
+  "A05:2025": "A05 注入攻擊",
+  "A06:2025": "A06 不安全設計",
   "A08:2025": "A08 軟體與資料完整性失效",
 };
 
@@ -40,9 +40,9 @@ const stageDefinitions: Omit<FlowStage, "status">[] = [
     shortLabel: "安全初審",
     title: "先判斷需求本身是否安全",
     actor: "Issue safety gate",
-    action: "辨識 A01 Broken Access Control 與 A03 Injection 等明確危險要求。",
+    action: "辨識 A01 Broken Access Control 與 A05 Injection 等明確危險要求。",
     evidence: "security:approved 或 security:blocked",
-    owaspCategories: ["A01:2025", "A03:2025"],
+    owaspCategories: ["A01:2025", "A05:2025"],
   },
   {
     id: "cloud-agent",
@@ -78,7 +78,7 @@ const stageDefinitions: Omit<FlowStage, "status">[] = [
     actor: "GitHub Actions",
     action: "執行 test、lint、build、DOM XSS、CodeQL 與 dependency review。",
     evidence: "Required status checks",
-    owaspCategories: ["A05:2025", "A06:2025", "A08:2025"],
+    owaspCategories: ["A03:2025", "A05:2025", "A08:2025"],
   },
   {
     id: "preview",
