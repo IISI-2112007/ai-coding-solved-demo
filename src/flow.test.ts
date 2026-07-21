@@ -11,8 +11,13 @@ import {
 describe("Cloud Agent 流程模型", () => {
   it("安全情境停在人類審查，不會自動 merge", () => {
     const scenario = buildScenario("safe");
-    expect(scenario.stages.find((stage) => stage.id === "human-review")?.status).toBe("active");
-    expect(scenario.stages.find((stage) => stage.id === "decision")?.status).toBe("pending");
+    const humanReviewIndex = scenario.stages.findIndex((stage) => stage.id === "human-review");
+    const decisionIndex = scenario.stages.findIndex((stage) => stage.id === "decision");
+
+    expect(scenario.stages[humanReviewIndex]?.status).toBe("active");
+    expect(scenario.stages[decisionIndex]?.status).toBe("pending");
+    expect(humanReviewIndex).toBe(scenario.stages.length - 2);
+    expect(decisionIndex).toBe(scenario.stages.length - 1);
   });
 
   it("不安全情境在安全初審阻擋後不再交給 Cloud Agent", () => {
