@@ -1,5 +1,5 @@
-name: 本地 AI 到 Cloud Agent 模擬任務
-description: 交給 GitHub Actions 模擬的 cloud agent，產生一個可審查的小成果。
+name: 歷史版 Actions Simulator 任務
+description: 第一版歷史教學；只模擬 Issue／PR 骨架，不是真正 Cloud Agent。
 title: "[agent-task] "
 labels:
   - local-ai
@@ -8,7 +8,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        這個 template 用於第一階段 simulator：本地端 AI 先把任務整理成 Issue，再由 GitHub Actions 模擬 cloud agent 開 PR。
+        這個 template 只保留作為第一版歷史教材：本地端 AI 先把任務整理成 Issue，再由 GitHub Actions 模擬開 PR。
+        GitHub Actions 不是 cloud agent；新的主要路徑請使用「Cloud Agent 安全任務」。
         請把任務切小，讓人類 reviewer 可以直接檢查 PR diff。
   - type: textarea
     id: goal

@@ -1,0 +1,102 @@
+name: Security Gate
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: 品質與 DOM XSS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 安裝鎖定相依套件
+        run: npm ci --ignore-scripts
+
+      - name: ESLint
+        run: |
+          npm run lint
+          npm run lint:docs
+
+      - name: Vitest 與 Python tests
+        run: |
+          npm test
+          python -m unittest discover -s tests -p "test_*.py"
+
+      - name: DOM XSS gate
+        run: npm run security:dom
+
+      - name: Production build
+        run: npm run build
+
+      - name: 保存 build 證據
+        uses: actions/upload-artifact@v4
+        with:
+          name: flow-lab-dist-${{ github.sha }}
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 檢查新增 dependency
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  codeql:
+    name: CodeQL (javascript-typescript)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 初始化 CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: 執行 CodeQL 分析
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:javascript-typescript

@@ -1,5 +1,5 @@
-name: 第二階段 Copilot Cloud Agent 任務
-description: 建立要指派給 GitHub Copilot cloud agent 的繁體中文任務。
+name: 歷史版 Copilot Cloud Agent 任務
+description: 第二階段歷史 template；新任務請改用具安全初審的 Cloud Agent 安全任務。
 title: "[copilot-agent] "
 labels:
   - local-ai
@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        這個 template 用於第二階段：本地端 AI 建立 Issue，接著由人類或腳本將 Issue 指派給 GitHub Copilot cloud agent。
+        這個 template 保留第二階段歷史流程。新的主要路徑會先取得 `security:approved`，再指派 GitHub Copilot cloud agent。
         這個 Issue 不會使用 `cloud-agent:ready` label，因此不會觸發第一階段的 simulator workflow。
   - type: textarea
     id: goal

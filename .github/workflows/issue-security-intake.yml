@@ -1,0 +1,104 @@
+name: Issue Security Intake
+
+on:
+  issues:
+    types:
+      - opened
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 要重新執行安全初審的 Issue 編號。
+        required: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  issue-security-intake:
+    name: OWASP Issue 初審
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || !github.event.issue.pull_request
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 解析 Issue
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_NUMBER: ${{ github.event.issue.number }}
+          EVENT_TITLE: ${{ github.event.issue.title }}
+          EVENT_BODY: ${{ github.event.issue.body }}
+          INPUT_NUMBER: ${{ inputs.issue_number }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            ISSUE_NUMBER="$INPUT_NUMBER"
+            ISSUE_TITLE="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json title --jq '.title')"
+            ISSUE_BODY="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq '.body')"
+          else
+            ISSUE_NUMBER="$EVENT_NUMBER"
+            ISSUE_TITLE="$EVENT_TITLE"
+            ISSUE_BODY="$EVENT_BODY"
+          fi
+          echo "number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
+          printf '%s' "$ISSUE_TITLE" > .issue-title.txt
+          printf '%s' "$ISSUE_BODY" > .issue-body.txt
+
+      - name: 執行 Issue 安全檢核
+        id: gate
+        run: |
+          python scripts/issue_security_gate.py \
+            --title-file .issue-title.txt \
+            --body-file .issue-body.txt \
+            --report-file .issue-security-report.md \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: 更新安全 labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+          STATUS: ${{ steps.gate.outputs.status }}
+        run: |
+          set -euo pipefail
+          gh label create "security:approved" --repo "$GITHUB_REPOSITORY" --color "2F8F55" --description "Issue 安全初審通過，可交給 Copilot。" --force
+          gh label create "security:blocked" --repo "$GITHUB_REPOSITORY" --color "B42318" --description "Issue 安全初審阻擋，不得交給實作 Agent。" --force
+          CURRENT_LABELS="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name')"
+          REMOVE_ARGS=()
+          for LABEL in "security:pending" "security:approved" "security:blocked"; do
+            if printf '%s\n' "$CURRENT_LABELS" | grep -Fxq "$LABEL"; then
+              REMOVE_ARGS+=(--remove-label "$LABEL")
+            fi
+          done
+          if [ "$STATUS" = "approved" ]; then
+            gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" "${REMOVE_ARGS[@]}" --add-label "security:approved"
+          else
+            gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" "${REMOVE_ARGS[@]}" --add-label "security:blocked"
+          fi
+
+      - name: 建立或更新安全初審證據
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+        run: |
+          set -euo pipefail
+
+          COMMENT_ID="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- issue-security-intake -->"))) | .id' \
+            | tail -n 1)"
+
+          if [ -n "$COMMENT_ID" ]; then
+            jq -Rs '{body: .}' .issue-security-report.md \
+              | gh api --method PATCH \
+                "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+                --input - >/dev/null
+            echo "Updated security intake comment ${COMMENT_ID}."
+          else
+            gh issue comment "$ISSUE_NUMBER" \
+              --repo "$GITHUB_REPOSITORY" \
+              --body-file .issue-security-report.md
+          fi

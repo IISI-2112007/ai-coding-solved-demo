@@ -1,21 +1,38 @@
-# Cloud Agent PR
-
-## 變更內容
-
-- 
+# Cloud Agent Flow Lab PR
 
 ## 對應 Issue
 
 Closes #
 
-## 人工審查清單
+## 變更內容
 
-- [ ] PR 有連回原始 Issue。
-- [ ] 修改檔案仍在 Issue 指定的允許範圍內。
-- [ ] 若這個 PR 有可視成果，PR Preview 連結可開啟。
-- [ ] 產出內容不依賴隱藏脈絡，人類 reviewer 可以直接理解。
-- [ ] reviewer 可以在 merge 前要求修改。
+- 
+
+## 允許範圍
+
+- [ ] 修改檔案都在 Issue 允許範圍。
+- [ ] 沒有停用 Security Gate、Copilot review 或人類審查。
+
+## OWASP 考量
+
+- 相關分類：
+- 新增或改變的信任邊界：
+- 殘餘風險：
 
 ## 驗證
 
-- [ ] `python scripts/verify_mvp.py`
+- [ ] `npm ci --ignore-scripts`
+- [ ] `npm run lint`
+- [ ] `npm test`
+- [ ] `python -m unittest discover -s tests -p "test_*.py"`
+- [ ] `npm run security:dom`
+- [ ] `npm run build`
+
+## 人類審查
+
+- [ ] Preview URL 可操作且實測 HTTP 200。
+- [ ] Copilot code review findings 已處理或明確說明。
+- [ ] Required checks 全數通過。
+- [ ] 人類 reviewer 已檢查需求、Preview、diff 與殘餘風險。
+
+不可自動 merge。Copilot review 的 Comment 不等於人類核准。

@@ -1,3 +1,5 @@
+import json
+import re
 from pathlib import Path
 
 
@@ -11,58 +13,80 @@ def require(condition, message):
 
 
 required_files = [
-    ".github/ISSUE_TEMPLATE/agent-task.yml",
-    ".github/ISSUE_TEMPLATE/copilot-agent-task.yml",
-    ".github/pull_request_template.md",
-    ".github/workflows/cloud-agent-simulator.yml",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "vite.config.js",
+    "src/main.ts",
+    "src/flow.ts",
+    "src/flow.test.ts",
+    "scripts/check-dangerous-dom.mjs",
+    "scripts/check_local_markdown_links.py",
+    "scripts/issue_security_gate.py",
+    "scripts/create_demo_issue.py",
+    "tests/test_issue_security_gate.py",
+    ".github/agents/implementer.agent.md",
+    ".github/agents/owasp-security-reviewer.agent.md",
+    ".github/copilot-instructions.md",
+    ".github/workflows/issue-security-intake.yml",
+    ".github/workflows/security-gate.yml",
     ".github/workflows/pr-preview.yml",
-    "scripts/create_agent_issue.py",
-    "scripts/create_copilot_issue.py",
-    "scripts/cloud_agent_simulator.py",
+    "docs/security/owasp-top-10-2025-checklist.md",
+    "docs/security/owasp-control-matrix.md",
+    "docs/tutorial/README.md",
+    "docs/tutorial/architecture.md",
+    "docs/tutorial/create-issue.md",
+    "docs/tutorial/cloud-agent.md",
+    "docs/tutorial/ai-security-review.md",
+    "docs/tutorial/human-pr-review.md",
+    "docs/tutorial/demo-script.md",
+    "docs/tutorial/current-status.md",
     "README.md",
-    "docs/end-to-end-process.md",
-    "docs/preview-provider-decision.md",
-    "docs/phase-2-copilot-cloud-agent.md",
-    "docs/phase-3-pr-preview.md",
-    "docs/operation-flow.md",
-    "index.html",
 ]
 
 for relative in required_files:
     require((ROOT / relative).is_file(), f"{relative} exists")
 
+package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
 readme = (ROOT / "README.md").read_text(encoding="utf-8")
-flow = (ROOT / "docs/operation-flow.md").read_text(encoding="utf-8")
-workflow = (ROOT / ".github/workflows/cloud-agent-simulator.yml").read_text(encoding="utf-8")
+main_source = (ROOT / "src/main.ts").read_text(encoding="utf-8")
+flow_source = (ROOT / "src/flow.ts").read_text(encoding="utf-8")
+security_workflow = (ROOT / ".github/workflows/security-gate.yml").read_text(encoding="utf-8")
+intake_workflow = (ROOT / ".github/workflows/issue-security-intake.yml").read_text(encoding="utf-8")
 preview_workflow = (ROOT / ".github/workflows/pr-preview.yml").read_text(encoding="utf-8")
-issue_template = (ROOT / ".github/ISSUE_TEMPLATE/agent-task.yml").read_text(encoding="utf-8")
-copilot_template = (ROOT / ".github/ISSUE_TEMPLATE/copilot-agent-task.yml").read_text(encoding="utf-8")
-create_script = (ROOT / "scripts/create_agent_issue.py").read_text(encoding="utf-8")
-copilot_script = (ROOT / "scripts/create_copilot_issue.py").read_text(encoding="utf-8")
-phase3 = (ROOT / "docs/phase-3-pr-preview.md").read_text(encoding="utf-8")
-end_to_end = (ROOT / "docs/end-to-end-process.md").read_text(encoding="utf-8")
-preview_decision = (ROOT / "docs/preview-provider-decision.md").read_text(encoding="utf-8")
+copilot_instructions = (ROOT / ".github/copilot-instructions.md").read_text(encoding="utf-8")
+checklist = (ROOT / "docs/security/owasp-top-10-2025-checklist.md").read_text(encoding="utf-8")
+matrix = (ROOT / "docs/security/owasp-control-matrix.md").read_text(encoding="utf-8")
+create_demo = (ROOT / "scripts/create_demo_issue.py").read_text(encoding="utf-8")
+tutorial = (ROOT / "docs/tutorial/README.md").read_text(encoding="utf-8")
 
-require("Local AI" in readme, "README explains Local AI")
-require("Cloud Agent" in readme, "README explains Cloud Agent")
-require("Human Review" in readme, "README explains Human Review")
-require("```mermaid" in readme, "README includes Mermaid flowchart")
-require("cloud-agent:ready" in issue_template, "issue template applies cloud-agent ready label")
-require("copilot-cloud-agent:ready" in copilot_template, "Copilot issue template applies phase-2 label")
-require("pull-requests: write" in workflow, "workflow can open PRs")
-require("github.event.issue.labels.*.name" in workflow, "workflow checks labels by exact name")
-require("gh-pages" in preview_workflow, "preview workflow deploys to gh-pages")
-require("environment_url" in preview_workflow, "preview workflow records a deployment URL")
-require("pages_enabled=false" in preview_workflow, "preview workflow reports Pages availability")
-require('"issue"' in create_script and '"create"' in create_script, "local script creates GitHub issues")
-require("@copilot" in copilot_script, "phase-2 script uses the GitHub CLI Copilot assignee")
-require("繁體中文" in copilot_script, "phase-2 script requests Traditional Chinese output")
-require("PR Preview" in phase3, "phase-3 document explains PR Preview")
-require("StatusCode=200" in phase3, "phase-3 document records live preview verification")
-require("已決策" in preview_decision, "preview provider decision is explicit")
-require("Vercel" in preview_decision and "GitHub Pages" in preview_decision, "preview provider decision lists options")
-require("Issue + 指派 @copilot" in end_to_end, "end-to-end doc explains Copilot trigger")
-require("資安" in end_to_end, "end-to-end doc covers security gate")
-require("git push" in flow, "operation flow explains GitHub publishing")
+for script in ("lint", "lint:docs", "test", "test:python", "security:dom", "build", "verify"):
+    require(script in package["scripts"], f"package.json defines {script}")
 
-print("OK: MVP structure verification complete")
+require("Cloud Agent Flow Lab" in readme, "README is the Flow Lab entrypoint")
+require("```mermaid" in readme, "README includes the end-to-end diagram")
+require("GitHub Actions 不是 cloud agent" in readme, "README separates Actions from Cloud Agent")
+require("textContent" in main_source, "UI renders untrusted output with textContent")
+require(not re.search(r"\.innerHTML\s*=", main_source), "main.ts has no innerHTML assignment")
+require("security:approved" in flow_source and "security:blocked" in flow_source, "flow model includes approved and blocked paths")
+require("actions/dependency-review-action@v4" in security_workflow, "Security Gate includes dependency review")
+require("github/codeql-action/analyze@v4" in security_workflow, "Security Gate includes CodeQL")
+require("npm run security:dom" in security_workflow, "Security Gate includes DOM XSS check")
+require("issue_security_gate.py" in intake_workflow, "Issue workflow runs deterministic gate")
+require("security:blocked" in intake_workflow, "Issue workflow can block unsafe tasks")
+require("<!-- issue-security-intake -->" in intake_workflow, "Issue workflow finds the existing security report marker")
+require("--method PATCH" in intake_workflow, "Issue workflow updates an existing security report comment")
+require("npm run build" in preview_workflow and "dist/." in preview_workflow, "Preview deploys Vite build output")
+require("required_contexts: []" in preview_workflow, "Preview deployment is independent from other check results")
+require("transient_environment: true" in preview_workflow, "Preview deployment is marked as transient")
+require("Copilot review 只能提供 Comment" in copilot_instructions, "Copilot instructions state AI review limitation")
+for number in range(1, 11):
+    require(f"A{number:02d}:2025" in checklist, f"checklist includes A{number:02d}:2025")
+require("Automated" in matrix and "AI-assisted" in matrix and "Human review" in matrix, "matrix separates control owners")
+require('"safe"' in create_demo and '"unsafe"' in create_demo, "demo script includes Safe and Unsafe scenarios")
+require("args.dry_run or not args.create" in create_demo, "demo Issue creation defaults to dry-run")
+require("copilot-swe-agent[bot]" in create_demo, "Safe scenario assigns the real Copilot cloud agent")
+require('"custom_agent": custom_agent' in create_demo, "Safe scenario selects the Implementer custom agent")
+require("10 至 15 分鐘" in tutorial, "tutorial declares a short onboarding path")
+
+print("OK: Cloud Agent Flow Lab structure verification complete")

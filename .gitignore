@@ -9,6 +9,10 @@ $RECYCLE.BIN/
 ~$*
 __pycache__/
 *.pyc
+node_modules/
+dist/
+.preview/
+coverage/
 
 # Local agent/runtime state
 .agents/

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "bash scripts/copilot-agent-stop.sh",
+        "timeoutSec": 180
+      }
+    ]
+  }
+}

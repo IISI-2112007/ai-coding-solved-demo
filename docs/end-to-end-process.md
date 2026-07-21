@@ -1,4 +1,6 @@
-# End-to-End 流程總覽
+# End-to-End 流程總覽（歷史版）
+
+> 這份文件保留早期設計脈絡。新的可執行流程與限制請從 [Cloud Agent Flow Lab 操作教學](tutorial/README.md) 開始。
 
 ## 這份文件解決什麼問題
 
