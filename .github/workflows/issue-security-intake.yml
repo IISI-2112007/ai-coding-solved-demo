@@ -66,18 +66,24 @@ jobs:
           set -euo pipefail
           gh label create "security:approved" --repo "$GITHUB_REPOSITORY" --color "2F8F55" --description "Issue 安全初審通過，可交給 Copilot。" --force
           gh label create "security:blocked" --repo "$GITHUB_REPOSITORY" --color "B42318" --description "Issue 安全初審阻擋，不得交給實作 Agent。" --force
+          if [ "$STATUS" = "approved" ]; then
+            TARGET_LABEL="security:approved"
+            OBSOLETE_LABELS=("security:pending" "security:blocked")
+          else
+            TARGET_LABEL="security:blocked"
+            OBSOLETE_LABELS=("security:pending" "security:approved")
+          fi
+
           CURRENT_LABELS="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name')"
           REMOVE_ARGS=()
-          for LABEL in "security:pending" "security:approved" "security:blocked"; do
+          for LABEL in "${OBSOLETE_LABELS[@]}"; do
             if printf '%s\n' "$CURRENT_LABELS" | grep -Fxq "$LABEL"; then
               REMOVE_ARGS+=(--remove-label "$LABEL")
             fi
           done
-          if [ "$STATUS" = "approved" ]; then
-            gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" "${REMOVE_ARGS[@]}" --add-label "security:approved"
-          else
-            gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" "${REMOVE_ARGS[@]}" --add-label "security:blocked"
-          fi
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            "${REMOVE_ARGS[@]}" \
+            --add-label "$TARGET_LABEL"
 
       - name: 建立或更新安全初審證據
         env:
