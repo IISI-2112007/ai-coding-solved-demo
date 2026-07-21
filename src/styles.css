@@ -533,6 +533,54 @@ button.danger-outline {
   padding-left: 20px;
 }
 
+.owasp-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.owasp-filter-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.owasp-filter-btn:hover:not(:disabled) {
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.owasp-filter-btn.active {
+  background: var(--accent, #0969da);
+  color: #ffffff;
+  border-color: var(--accent, #0969da);
+}
+
+.owasp-filter-result {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+#owasp-filter-hint {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+#owasp-filter-list {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  line-height: 1.7;
+}
+
 .control-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

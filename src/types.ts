@@ -1,5 +1,12 @@
 export type ScenarioId = "safe" | "blocked";
 
+export type OwaspCategory =
+  | "A01:2025"
+  | "A03:2025"
+  | "A05:2025"
+  | "A06:2025"
+  | "A08:2025";
+
 export type StageStatus = "complete" | "active" | "pending" | "blocked" | "not-reached";
 
 export type StageId =
@@ -22,6 +29,7 @@ export interface FlowStage {
   action: string;
   evidence: string;
   status: StageStatus;
+  owaspCategories: OwaspCategory[];
 }
 
 export interface Scenario {

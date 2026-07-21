@@ -86,6 +86,27 @@
         </div>
       </section>
 
+      <section class="owasp-filter-band" aria-labelledby="owasp-filter-title">
+        <div class="section-lead compact">
+          <div>
+            <p class="eyebrow">OWASP 風險篩選</p>
+            <h2 id="owasp-filter-title">依風險分類查看相關流程階段</h2>
+          </div>
+          <p>選擇一個 OWASP 分類，即可查看哪些流程階段負責處理該類風險。</p>
+        </div>
+        <div class="owasp-filter-buttons" role="group" aria-label="OWASP 風險分類篩選">
+          <button class="owasp-filter-btn" type="button" data-owasp="A01:2025">A01 存取控制失效</button>
+          <button class="owasp-filter-btn" type="button" data-owasp="A03:2025">A03 注入攻擊</button>
+          <button class="owasp-filter-btn" type="button" data-owasp="A05:2025">A05 安全設定錯誤</button>
+          <button class="owasp-filter-btn" type="button" data-owasp="A06:2025">A06 已知弱點元件</button>
+          <button class="owasp-filter-btn" type="button" data-owasp="A08:2025">A08 軟體與資料完整性失效</button>
+        </div>
+        <div class="owasp-filter-result" id="owasp-filter-result" aria-live="polite">
+          <p id="owasp-filter-hint">請選擇上方的 OWASP 分類以查看相關流程階段。</p>
+          <ul id="owasp-filter-list" hidden></ul>
+        </div>
+      </section>
+
       <section class="issue-lab" aria-labelledby="issue-lab-title">
         <div class="section-lead compact">
           <div>

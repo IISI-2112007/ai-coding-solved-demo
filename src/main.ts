@@ -1,7 +1,13 @@
 import "./styles.css";
 
-import { buildScenario, clampStageIndex, validateIssueDraft } from "./flow";
-import type { Scenario, ScenarioId, StageStatus } from "./types";
+import {
+  OWASP_CATEGORY_LABELS,
+  buildScenario,
+  clampStageIndex,
+  filterStagesByOwaspCategory,
+  validateIssueDraft,
+} from "./flow";
+import type { OwaspCategory, Scenario, ScenarioId, StageStatus } from "./types";
 
 function requiredElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -52,6 +58,9 @@ const validationSummary = requiredElement<HTMLElement>("#validation-summary");
 const validationFindings = requiredElement<HTMLUListElement>("#validation-findings");
 const reviewChecks = document.querySelectorAll<HTMLInputElement>("[data-review-check]");
 const reviewProgress = requiredElement<HTMLElement>("#review-progress");
+const owaspFilterButtons = document.querySelectorAll<HTMLButtonElement>("[data-owasp]");
+const owaspFilterHint = requiredElement<HTMLElement>("#owasp-filter-hint");
+const owaspFilterList = requiredElement<HTMLUListElement>("#owasp-filter-list");
 
 let scenario: Scenario = buildScenario("safe");
 let activeStageIndex = 8;
@@ -147,6 +156,36 @@ function updateReviewProgress(): void {
   reviewProgress.classList.toggle("complete", complete === reviewChecks.length);
 }
 
+function renderOwaspFilter(category: OwaspCategory): void {
+  const stages = filterStagesByOwaspCategory(scenario.stages, category);
+  const label = OWASP_CATEGORY_LABELS[category];
+
+  owaspFilterButtons.forEach((btn) => {
+    const isActive = btn.dataset.owasp === category;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", String(isActive));
+  });
+
+  owaspFilterList.replaceChildren();
+
+  if (stages.length === 0) {
+    owaspFilterHint.textContent = `${label}：目前情境中沒有直接相關的流程階段。`;
+    owaspFilterList.hidden = true;
+    return;
+  }
+
+  owaspFilterHint.textContent = `${label}：以下 ${stages.length.toString()} 個流程階段與此風險分類相關。`;
+  stages.forEach((stage) => {
+    const item = document.createElement("li");
+    const strong = document.createElement("strong");
+    strong.textContent = stage.shortLabel;
+    const text = document.createTextNode(`  ${stage.title}  —  ${stage.action}`);
+    item.append(strong, text);
+    owaspFilterList.append(item);
+  });
+  owaspFilterList.hidden = false;
+}
+
 scenarioButtons.forEach((button) => {
   button.addEventListener("click", () => setScenario(button.dataset.scenario as ScenarioId));
 });
@@ -165,6 +204,11 @@ issueForm.addEventListener("submit", (event) => {
   renderValidation();
 });
 reviewChecks.forEach((check) => check.addEventListener("change", updateReviewProgress));
+owaspFilterButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    renderOwaspFilter(btn.dataset.owasp as OwaspCategory);
+  });
+});
 
 loadDraft(safeDraft);
 renderWorkflow();
