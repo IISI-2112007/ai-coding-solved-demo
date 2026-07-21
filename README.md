@@ -71,6 +71,10 @@ Copilot 完成後會開 PR。接著要求 Copilot code review、等待 `Security
 - [Safe／Unsafe Demo 腳本](docs/tutorial/demo-script.md)
 - [目前完成度與限制](docs/tutorial/current-status.md)
 
+## 人類實際要做什麼
+
+`Approve workflows to run` 只允許測試，`Approve` 留下人類審查紀錄，只有 `Merge` 會把修改放入 `main`。完整操作順序與判斷方式集中在[人類 PR 審查](docs/tutorial/human-pr-review.md)；Copilot review 與綠色 checks 都是證據，不會取代人類決定。
+
 ## 角色分工
 
 ```mermaid
@@ -88,13 +92,14 @@ flowchart LR
     H -->|"Accept"| M["Merge"]
 ```
 
-## 現有 GitHub 基線證據
+## 現有 GitHub 證據
 
-- 真正 Copilot cloud agent Issue：[Issue #3](https://github.com/IISI-2112007/ai-coding-solved-demo/issues/3)
-- 真正 Copilot cloud agent PR：[PR #4](https://github.com/IISI-2112007/ai-coding-solved-demo/pull/4)
-- 已驗證 HTTP 200 的舊版 Preview：[PR #4 Preview](https://iisi-2112007.github.io/ai-coding-solved-demo/pr-4/)
-
-新的 Safe／Unsafe 證據會在本版本進入 default branch 後建立；未成功的項目不得描述為已完成。
+- Unsafe Issue：[Issue #10](https://github.com/IISI-2112007/ai-coding-solved-demo/issues/10)，具有 `security:blocked`、A01／A05 與 `BLOCK` 證據。
+- Unsafe PR：[PR #11](https://github.com/IISI-2112007/ai-coding-solved-demo/pull/11)，Copilot code review 與 Actions 均指出問題，禁止合併。
+- Safe Issue：[Issue #12](https://github.com/IISI-2112007/ai-coding-solved-demo/issues/12)，由真正 Copilot cloud agent 接手。
+- Safe PR：[PR #13](https://github.com/IISI-2112007/ai-coding-solved-demo/pull/13)，由 Copilot 實作，checks 全數通過並由人類核准、合併。
+- Safe Preview：[PR #13 Preview](https://iisi-2112007.github.io/ai-coding-solved-demo/pr-13/)，已驗證 HTTP 200。
+- Workflow 修正：[PR #14](https://github.com/IISI-2112007/ai-coding-solved-demo/pull/14)，修正 Issue 安全標籤重跑一致性並由人類合併。
 
 ## 歷史 Simulator
 
